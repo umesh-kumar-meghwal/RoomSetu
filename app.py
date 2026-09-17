@@ -34,10 +34,12 @@ def create_app(config_class=Config) -> Flask:
     app.register_blueprint(api_bp)
 
     # Context Processor for Jinja2 Templates
+    # Context Processor for Jinja2 Templates
     @app.context_processor
     def inject_auth_state():
-        """Provides session and authentication state to all Jinja2 templates."""
+        """Provides session, auth state, and Supabase config to all Jinja2 templates."""
         return {
+            "supabase_url": Config.SUPABASE_URL.rstrip('/'), # <-- YEH NAYA ADD KAREIN
             "current_user": {
                 "is_authenticated": bool(session.get("user_id")),
                 "id": session.get("user_id"),

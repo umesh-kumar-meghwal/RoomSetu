@@ -1,14 +1,15 @@
 {# Reusable Room Card Component #}
 <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col group">
     <!-- Image Header -->
+    <!-- Image Header -->
     <div class="relative h-48 bg-slate-100 overflow-hidden">
-        {% set img_url = "/static/images/room-placeholder.jpg" %}
+        {% set img_url = "https://placehold.co/600x400/e2e8f0/475569?text=RoomSetu+Preview" %}
         {% if room.room_images and room.room_images|length > 0 %}
-            {% set img_url = "https://your-project-id.supabase.co/storage/v1/object/public/property-media/" ~ room.room_images[0].storage_path %}
+            {% set img_url = supabase_url ~ "/storage/v1/object/public/property-media/" ~ room.room_images[0].storage_path %}
         {% endif %}
-
-        <img src="{{ img_url }}"
-             alt="{{ room.room_name }}"
+        
+        <img src="{{ img_url }}" 
+             alt="{{ room.room_name }}" 
              class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
              onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=RoomSetu+Preview'">
 
