@@ -140,7 +140,93 @@
                 <p class="text-xs text-slate-500 mb-4">{{ property.address_line }}, {{ property.locality }}, {{ property.city }}</p>
                 <div id="property-map-view"></div>
             </div>
-            
+            <!-- STUDENT FEEDBACK & REVIEWS SECTION -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2 mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Student Reviews & Feedback</h2>
+                        <p class="text-xs text-slate-500">Real ratings and experiences shared by students</p>
+                    </div>
+
+                    <!-- Overall Rating Badge -->
+                    <div class="flex items-center gap-2">
+                        {% if total_reviews > 0 %}
+                            <div class="flex items-center px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg">
+                                <span class="text-amber-500 text-lg mr-1.5">★</span>
+                                <span class="text-base font-black text-slate-900">{{ avg_rating }}</span>
+                                <span class="text-xs text-slate-500 ml-1.5">({{ total_reviews }} reviews)</span>
+                            </div>
+                        {% else %}
+                            <span class="text-xs text-slate-400 font-semibold bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">No reviews yet</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Submit Feedback Form (Only for Students) -->
+                {% if current_user.is_authenticated and current_user.role == 'STUDENT' %}
+                    <form method="POST" action="{{ url_for('properties_bp.add_review', property_id=property.id) }}" class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Leave Your Feedback</h3>
+                        
+                        <div class="mb-3">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Your Rating</label>
+                            <select name="rating" required class="w-full sm:w-48 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <option value="5">★★★★★ (5 - Excellent)</option>
+                                <option value="4">★★★★☆ (4 - Very Good)</option>
+                                <option value="3">★★★☆☆ (3 - Average)</option>
+                                <option value="2">★★☆☆☆ (2 - Below Average)</option>
+                                <option value="1">★☆☆☆☆ (1 - Poor)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Your Experience / Review</label>
+                            <textarea name="comment" rows="3" required placeholder="Owner ka behaviour kaisa hai? Paani, bijli, WiFi aur cleanliness kaisi hai? Apna feedback likhein..."
+                                      class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs shadow-sm transition">
+                                Submit Feedback
+                            </button>
+                        </div>
+                    </form>
+                {% elif not current_user.is_authenticated %}
+                    <div class="p-3 bg-slate-50 rounded-lg text-xs text-slate-600 border border-slate-100 mb-6 flex items-center justify-between">
+                        <span>Feedback submit karne ke liye student login zaroori hai.</span>
+                        <a href="{{ url_for('auth_bp.login') }}" class="font-bold text-indigo-600 hover:underline">Sign In →</a>
+                    </div>
+                {% endif %}
+
+                <!-- Existing Reviews List -->
+                {% if reviews and reviews|length > 0 %}
+                    <div class="space-y-4 divide-y divide-slate-100">
+                        {% for r in reviews %}
+                            <div class="pt-4 first:pt-0">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs">
+                                            {{ r.student.full_name[:1]|upper if r.student and r.student.full_name else 'S' }}
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-900">{{ r.student.full_name if r.student else 'Verified Student' }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-amber-400 text-xs font-bold">
+                                            {% for i in range(r.rating) %}★{% endfor %}
+                                            {% for i in range(5 - r.rating) %}<span class="text-slate-200">★</span>{% endfor %}
+                                        </div>
+                                        <span class="text-[10px] text-slate-400">{{ r.created_at[:10] }}</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-700 leading-relaxed pl-9">"{{ r.comment }}"</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-6 text-slate-400 text-xs">
+                        Is property par abhi tak koi student review nahi aaya hai. Pehle student banein jo feedback dein!
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
         <!-- Sidebar (Right): Rental Policies & Tenancy Rules -->
