@@ -187,16 +187,16 @@ def add_review(property_id: str):
         flash("Feedback save karne mein dikkat aayi. Please dubara try karein.", "danger")
 
     return redirect(url_for("properties_bp.property_detail", property_id=property_id))
-
 @properties_bp.route("/rooms/<room_id>")
 def room_detail(room_id: str):
     """
     Renders detailed room specifications, including utility
-    pricing, amenities matrix, and inquiry submission panel.
+    pricing, amenities matrix, reviews, and inquiry submission panel.
     """
     service = get_service_client()
 
     try:
+        # 1. Fetch Room, Amenities, Images, Property, and Owner Details
         res = service.table("rooms").select(
             "*, amenities(*), room_images(*), "
             "properties!inner(*, rental_policies(*), property_images(*), "
@@ -213,19 +213,52 @@ def room_detail(room_id: str):
         if room_data.get("availability_status") != "AVAILABLE" or property_data.get("publishing_status") != "PUBLISHED":
             abort(404)
 
+        # Normalize Amenities Dict
         amenities = room_data.get("amenities")
         if isinstance(amenities, list) and amenities:
             room_data["amenities"] = amenities[0]
         elif not isinstance(amenities, dict):
             room_data["amenities"] = {}
 
+        # Normalize Rental Policies Dict
         policies = property_data.get("rental_policies")
         if isinstance(policies, list) and policies:
             property_data["rental_policies"] = policies[0]
         elif not isinstance(policies, dict):
             property_data["rental_policies"] = {}
 
-        return render_template("properties/room_detail.html", room=room_data, property=property_data)
+        # 2. Fetch All Student Reviews for this Property
+        reviews_res = service.table("reviews").select(
+            "id, rating, comment, created_at, student:profiles!reviews_student_id_fkey(full_name, avatar_url)"
+        ).eq("property_id", property_data["id"]).order("created_at", desc=True).execute()
+
+        reviews = reviews_res.data or []
+        
+        # Calculate Average Rating
+        if reviews:
+            avg_rating = round(sum(r["rating"] for r in reviews) / len(reviews), 1)
+        else:
+            avg_rating = 0.0
+
+        # 3. Check if CURRENT logged-in student has already reviewed this property
+        user_review = None
+        user_id = session.get("user_id")
+        user_role = session.get("role")
+        
+        if user_id and user_role == "STUDENT":
+            u_check = service.table("reviews").select("*").eq("property_id", property_data["id"]).eq("student_id", user_id).execute()
+            if u_check.data:
+                user_review = u_check.data[0]
+
+        return render_template(
+            "properties/room_detail.html",
+            room=room_data,
+            property=property_data,
+            reviews=reviews,
+            avg_rating=avg_rating,
+            total_reviews=len(reviews),
+            user_review=user_review
+        )
 
     except Exception as exc:
         logger.error(f"Error fetching room detail for {room_id}: {exc}")

@@ -5,15 +5,15 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Breadcrumb -->
     <nav class="flex text-xs font-semibold text-slate-500 mb-4 space-x-2">
-        <a href="{{ url_for('properties_bp.browse') }}" class="hover:text-indigo-600">Properties</a>
+        <a href="{{ url_for('properties_bp.browse') }}" class="hover:text-indigo-600 transition">Properties</a>
         <span>/</span>
-        <a href="{{ url_for('properties_bp.property_detail', property_id=property.id) }}" class="hover:text-indigo-600">{{ property.title }}</a>
+        <a href="{{ url_for('properties_bp.property_detail', property_id=property.id) }}" class="hover:text-indigo-600 transition">{{ property.title }}</a>
         <span>/</span>
-        <span class="text-slate-900">{{ room.room_name }}</span>
+        <span class="text-slate-900 font-bold truncate max-w-xs">{{ room.room_name }}</span>
     </nav>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Main Room Details & Media -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <!-- Main Room Details & Media (Left 2 Columns) -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Header Card -->
             <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
@@ -28,10 +28,16 @@
                             </span>
                         </div>
                         <h1 class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">{{ room.room_name }}</h1>
-                        <p class="text-xs text-slate-500 mt-1">Located in: <a href="{{ url_for('properties_bp.property_detail', property_id=property.id) }}" class="text-indigo-600 font-semibold hover:underline">{{ property.title }}</a></p>
+                        <p class="text-xs text-slate-500 mt-1">
+                            In Property: 
+                            <a href="{{ url_for('properties_bp.property_detail', property_id=property.id) }}" class="text-indigo-600 font-semibold hover:underline">
+                                {{ property.title }}
+                            </a>
+                            • {{ property.locality }}, {{ property.city }}
+                        </p>
                     </div>
 
-                    <div class="text-right">
+                    <div class="sm:text-right">
                         <span class="text-3xl font-black text-slate-900">₹{{ "{:,.0f}".format(room.monthly_rent) }}</span>
                         <span class="text-xs text-slate-500 block">/ month</span>
                     </div>
@@ -40,48 +46,47 @@
                 <!-- Financial Terms Grid -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 text-center">
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="text-xs text-slate-500 uppercase block font-semibold">Security Deposit</span>
+                        <span class="text-[11px] text-slate-500 uppercase block font-semibold">Security Deposit</span>
                         <span class="text-sm font-bold text-slate-900 mt-0.5">₹{{ "{:,.0f}".format(room.security_deposit) }}</span>
                     </div>
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="text-xs text-slate-500 uppercase block font-semibold">Advance Rent</span>
+                        <span class="text-[11px] text-slate-500 uppercase block font-semibold">Advance Rent</span>
                         <span class="text-sm font-bold text-slate-900 mt-0.5">₹{{ "{:,.0f}".format(room.advance_rent) }}</span>
                     </div>
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="text-xs text-slate-500 uppercase block font-semibold">Electricity</span>
+                        <span class="text-[11px] text-slate-500 uppercase block font-semibold">Electricity</span>
                         <span class="text-xs font-bold text-slate-900 mt-0.5">{{ room.electricity_policy|replace('_', ' ')|title }}</span>
                     </div>
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="text-xs text-slate-500 uppercase block font-semibold">Water Charges</span>
+                        <span class="text-[11px] text-slate-500 uppercase block font-semibold">Water Charges</span>
                         <span class="text-xs font-bold text-slate-900 mt-0.5">{{ room.water_policy|replace('_', ' ')|title }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Room Images Gallery -->
-{% if room.room_images and room.room_images|length > 0 %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {% for img in room.room_images %}
-            <div class="h-64 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 shadow-sm group">
-                <img src="{{ supabase_url }}/storage/v1/object/public/property-media/{{ img.storage_path }}" 
-                     alt="{{ room.room_name }}" 
-                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                     loading="lazy"
-                     onerror="this.onerror=null; this.src='https://placehold.co/800x600/e2e8f0/475569?text=Room+Interior';">
-            </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <!-- Agar Landlord ne koi image upload na ki ho toh fallback banner -->
-    <div class="h-64 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center text-slate-400">
-        <div class="text-center">
-            <svg class="w-12 h-12 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <p class="text-xs font-semibold">No room photos uploaded yet</p>
-        </div>
-    </div>
-{% endif %}
+            {% if room.room_images and room.room_images|length > 0 %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for img in room.room_images %}
+                        <div class="h-64 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 shadow-sm group">
+                            <img src="{{ supabase_url }}/storage/v1/object/public/property-media/{{ img.storage_path }}" 
+                                 alt="{{ room.room_name }}" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                 loading="lazy"
+                                 onerror="this.onerror=null; this.src='https://placehold.co/800x600/e2e8f0/475569?text=Room+Interior';">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="h-64 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center text-slate-400">
+                    <div class="text-center">
+                        <svg class="w-12 h-12 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <p class="text-xs font-semibold">No room photos uploaded yet</p>
+                    </div>
+                </div>
+            {% endif %}
 
             <!-- Room Amenities Matrix -->
             <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
@@ -116,43 +121,63 @@
                         <span class="{% if a.has_power_backup %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ Power Backup</span>
                     </div>
                 </div>
-                <!-- ================= STUDENT RATING & FEEDBACK SECTION ================= -->
-            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mt-6">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+            </div>
+
+            <!-- ================= STUDENT RATING & FEEDBACK SECTION ================= -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2 mb-6">
                     <div>
-                        <h2 class="text-base font-bold text-slate-900">Student Reviews & Ratings</h2>
-                        <p class="text-xs text-slate-500">Is property aur room ke bare mein student feedback</p>
+                        <h2 class="text-base font-bold text-slate-900">Student Reviews & Feedback</h2>
+                        <p class="text-xs text-slate-500">Reviews for {{ property.title }}</p>
                     </div>
-                    <span class="text-xs font-bold px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg">
-                        ⭐ Verified Reviews
-                    </span>
+
+                    <!-- Overall Star Badge -->
+                    <div class="flex items-center gap-2">
+                        {% if total_reviews > 0 %}
+                            <div class="flex items-center px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg">
+                                <span class="text-amber-500 text-lg mr-1.5">★</span>
+                                <span class="text-base font-black text-slate-900">{{ avg_rating }}</span>
+                                <span class="text-xs text-slate-500 ml-1.5">({{ total_reviews }} reviews)</span>
+                            </div>
+                        {% else %}
+                            <span class="text-xs text-slate-400 font-semibold bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">No reviews yet</span>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <!-- 1. Agar Student Logged In hai toh Form dikhega -->
+                <!-- 1. Agar Student Logged In hai toh Form -->
                 {% if current_user.is_authenticated and current_user.role == 'STUDENT' %}
+                    {% if user_review %}
+                        <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 font-medium">
+                            ✓ Aapne is property par pehle <strong>{{ user_review.rating }}★</strong> review diya tha. Agar aap chahein toh niche se apna feedback update kar sakte hain.
+                        </div>
+                    {% endif %}
+
                     <form method="POST" action="{{ url_for('properties_bp.add_review', property_id=property.id) }}" class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
-                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Apna Review / Rating Dein</h3>
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                            {% if user_review %}Update Your Review{% else %}Leave Your Feedback & Rating{% endif %}
+                        </h3>
                         
                         <div class="mb-3">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Select Rating Stars</label>
                             <select name="rating" required class="w-full sm:w-56 px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-amber-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                                <option value="5" selected>⭐⭐⭐⭐⭐ (5 - Excellent Experience)</option>
-                                <option value="4">⭐⭐⭐⭐☆ (4 - Good / Satisfied)</option>
-                                <option value="3">⭐⭐⭐☆☆ (3 - Average Stay)</option>
-                                <option value="2">⭐⭐☆☆☆ (2 - Below Average)</option>
-                                <option value="1">⭐☆☆☆☆ (1 - Poor / Bad Experience)</option>
+                                <option value="5" {% if not user_review or user_review.rating == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ (5 - Excellent)</option>
+                                <option value="4" {% if user_review and user_review.rating == 4 %}selected{% endif %}>⭐⭐⭐⭐☆ (4 - Good / Satisfied)</option>
+                                <option value="3" {% if user_review and user_review.rating == 3 %}selected{% endif %}>⭐⭐⭐☆☆ (3 - Average Stay)</option>
+                                <option value="2" {% if user_review and user_review.rating == 2 %}selected{% endif %}>⭐⭐☆☆☆ (2 - Below Average)</option>
+                                <option value="1" {% if user_review and user_review.rating == 1 %}selected{% endif %}>⭐☆☆☆☆ (1 - Poor Experience)</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Feedback Description</label>
-                            <textarea name="comment" rows="3" required placeholder="Owner ka nature kaisa hai? Paani, bijli, WiFi aur cleanliness theek hai? Dusre students ke liye apna review likhein..."
-                                      class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Review Description</label>
+                            <textarea name="comment" rows="3" required placeholder="Owner ka behaviour kaisa hai? Paani, bijli, WiFi aur cleanliness kaisi hai? Dusre students ke liye feedback likhein..."
+                                      class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">{{ user_review.comment if user_review else '' }}</textarea>
                         </div>
 
                         <div class="flex justify-end">
                             <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs shadow-sm transition">
-                                Submit Rating & Review
+                                {% if user_review %}Update Review{% else %}Submit Rating & Review{% endif %}
                             </button>
                         </div>
                     </form>
@@ -162,42 +187,71 @@
                     <div class="p-4 bg-indigo-50/60 rounded-xl border border-indigo-100 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                             <p class="text-xs font-bold text-indigo-950">Kya aapne yahan stay kiya hai?</p>
-                            <p class="text-[11px] text-indigo-700">Rating ya feedback dene ke liye pehle student account se sign in karein.</p>
+                            <p class="text-[11px] text-indigo-700">Rating ya feedback submit karne ke liye pehle student account se sign in karein.</p>
                         </div>
                         <a href="{{ url_for('auth_bp.login') }}" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs transition text-center whitespace-nowrap">
                             Sign In to Rate →
                         </a>
                     </div>
 
-                <!-- 3. Agar Landlord Login Hai Toh Notice Dikhega -->
+                <!-- 3. Agar Landlord Login Hai -->
                 {% else %}
-                    <div class="p-3 bg-slate-50 rounded-lg text-xs text-slate-500 border border-slate-200 mb-4">
+                    <div class="p-3 bg-slate-50 rounded-lg text-xs text-slate-500 border border-slate-200 mb-6">
                         Aap <strong>{{ current_user.role }}</strong> account se logged in hain. Sirf verified student accounts hi review submit kar sakte hain.
+                    </div>
+                {% endif %}
+
+                <!-- Existing Reviews List -->
+                {% if reviews and reviews|length > 0 %}
+                    <div class="space-y-4 divide-y divide-slate-100">
+                        {% for r in reviews %}
+                            <div class="pt-4 first:pt-0">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs">
+                                            {{ r.student.full_name[:1]|upper if r.student and r.student.full_name else 'S' }}
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-900">{{ r.student.full_name if r.student else 'Verified Student' }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-amber-400 text-xs font-bold">
+                                            {% for i in range(r.rating) %}★{% endfor %}
+                                            {% for i in range(5 - r.rating) %}<span class="text-slate-200">★</span>{% endfor %}
+                                        </div>
+                                        <span class="text-[10px] text-slate-400">{{ r.created_at[:10] }}</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-700 leading-relaxed pl-9">"{{ r.comment }}"</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-6 text-slate-400 text-xs">
+                        Is property par abhi tak koi student review nahi aaya hai. Pehle student banein jo feedback dein!
                     </div>
                 {% endif %}
             </div>
             <!-- ================= END RATING SECTION ================= -->
-            </div>
         </div>
 
-        <!-- Sidebar: Contact Landlord & Inquiries -->
+        <!-- Sidebar: Contact Landlord & Inquiries (Right Column) -->
         <div class="space-y-6">
             <!-- Direct Inquiry Form -->
-            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                <h2 class="text-base font-bold text-slate-900 mb-2">Send Inquiry to Owner</h2>
-                <p class="text-xs text-slate-500 mb-4">Connect directly with the property owner for visit scheduling.</p>
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm sticky top-20">
+                <h2 class="text-base font-bold text-slate-900 mb-1">Contact Property Owner</h2>
+                <p class="text-xs text-slate-500 mb-4">Visit scheduling aur room booking ke liye direct request bhejein.</p>
 
                 {% if current_user.is_authenticated %}
                     {% if current_user.role == 'STUDENT' %}
                         <form method="POST" action="{{ url_for('inquiries_bp.submit', room_id=room.id) }}" class="space-y-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Target Move-in Date</label>
-                                <input type="date" name="move_in_date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none">
+                                <input type="date" name="move_in_date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Message to Owner</label>
                                 <textarea name="message" rows="3" required placeholder="Hi, I am interested in visiting this room. Is it available for immediate tenancy?"
-                                          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none"></textarea>
+                                          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
                             </div>
                             <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs transition shadow-sm">
                                 Send Accommodation Inquiry
