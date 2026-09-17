@@ -53,17 +53,23 @@
                                         </div>
 
                                         <!-- Toggle Occupancy Status -->
-                                        <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
-                                            <form method="POST" action="{{ url_for('landlord_bp.toggle_room_status', room_id=room.id) }}">
-                                                {% if room.availability_status == 'AVAILABLE' %}
-                                                    <input type="hidden" name="status" value="OCCUPIED">
-                                                    <button type="submit" class="text-xs text-red-600 font-semibold hover:underline">Mark Occupied</button>
-                                                {% else %}
-                                                    <input type="hidden" name="status" value="AVAILABLE">
-                                                    <button type="submit" class="text-xs text-emerald-600 font-semibold hover:underline">Mark Available</button>
-                                                {% endif %}
-                                            </form>
-                                        </div>
+                                       <!-- Toggle Occupancy Status -->
+<div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
+    <form method="POST" action="{{ url_for('landlord_bp.toggle_room_status', room_id=room.id) }}">
+        {% if room.availability_status == 'AVAILABLE' %}
+            <input type="hidden" name="status" value="OCCUPIED">
+            <button type="submit" class="text-xs text-red-600 font-semibold hover:underline">Mark Occupied</button>
+        {% else %}
+            <input type="hidden" name="status" value="AVAILABLE">
+            <button type="submit" class="text-xs text-emerald-600 font-semibold hover:underline">Mark Available</button>
+        {% endif %}
+    </form>
+    
+    <!-- NAYA: Edit Room Link -->
+    <a href="{{ url_for('landlord_bp.edit_room', room_id=room.id) }}" class="text-xs text-indigo-600 font-bold hover:underline">
+        Edit Room & Photos ✏️
+    </a>
+</div>
                                     </div>
                                 {% endfor %}
                             </div>

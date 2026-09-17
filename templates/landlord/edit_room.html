@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ room.room_name }} - RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <a href="{{ url_for('landlord_bp.properties') }}" class="text-xs font-semibold text-indigo-600 hover:underline">← Back to Properties</a>
+            <h1 class="text-2xl font-black text-slate-900 mt-1">Edit Room: {{ room.room_name }}</h1>
+            <p class="text-sm text-slate-500">Property: <strong>{{ room.properties.title }}</strong></p>
+        </div>
+        
+        <!-- Delete Room Button -->
+        <form method="POST" action="{{ url_for('landlord_bp.delete_room', room_id=room.id) }}" 
+              onsubmit="return confirm('WARNING: Kya aap sach mein is room ko delete karna chahte hain? Sabhi inquiries aur photos permanently delete ho jayengi.');">
+            <button type="submit" class="px-3.5 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-lg text-xs border border-red-200 transition">
+                🗑 Delete This Room
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Edit Form -->
+    <form method="POST" action="{{ url_for('landlord_bp.edit_room', room_id=room.id) }}" enctype="multipart/form-data" class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm space-y-6">
+        
+        <!-- 1. Basic Details & Pricing -->
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">1. Room Details, Pricing & Availability</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Room Name / Number</label>
+                    <input type="text" name="room_name" value="{{ room.room_name }}" required
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Room Sharing Type</label>
+                    <select name="room_type" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                        <option value="SINGLE" {% if room.room_type == 'SINGLE' %}selected{% endif %}>Single Occupancy</option>
+                        <option value="DOUBLE_SHARING" {% if room.room_type == 'DOUBLE_SHARING' %}selected{% endif %}>Double Sharing</option>
+                        <option value="TRIPLE_SHARING" {% if room.room_type == 'TRIPLE_SHARING' %}selected{% endif %}>Triple Sharing</option>
+                        <option value="FOUR_SHARING" {% if room.room_type == 'FOUR_SHARING' %}selected{% endif %}>Four Sharing</option>
+                        <option value="HALL_ROOM" {% if room.room_type == 'HALL_ROOM' %}selected{% endif %}>Hall Room</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Current Status</label>
+                    <select name="availability_status" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 font-bold">
+                        <option value="AVAILABLE" {% if room.availability_status == 'AVAILABLE' %}selected{% endif %} class="text-emerald-600">AVAILABLE (Listed on Search)</option>
+                        <option value="OCCUPIED" {% if room.availability_status == 'OCCUPIED' %}selected{% endif %} class="text-red-600">OCCUPIED (Hidden from Map)</option>
+                        <option value="INACTIVE" {% if room.availability_status == 'INACTIVE' %}selected{% endif %} class="text-slate-600">INACTIVE</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Monthly Rent (₹)</label>
+                    <input type="number" name="monthly_rent" value="{{ room.monthly_rent }}" required min="1"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Security Deposit (₹)</label>
+                    <input type="number" name="security_deposit" value="{{ room.security_deposit }}" min="0"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cooler Charges (₹/mo)</label>
+                    <input type="number" name="cooler_charges" value="{{ room.cooler_charges }}" min="0"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Utility Billing Policies -->
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">2. Utility Billing</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Electricity Policy</label>
+                    <select name="electricity_policy" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                        <option value="METER_SEPARATE" {% if room.electricity_policy == 'METER_SEPARATE' %}selected{% endif %}>Separate Sub-Meter</option>
+                        <option value="INCLUDED" {% if room.electricity_policy == 'INCLUDED' %}selected{% endif %}>Included in Rent</option>
+                        <option value="FIXED_EXTRA" {% if room.electricity_policy == 'FIXED_EXTRA' %}selected{% endif %}>Fixed Extra Surcharge</option>
+                        <option value="METER_SHARED" {% if room.electricity_policy == 'METER_SHARED' %}selected{% endif %}>Shared Meter</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Water Policy</label>
+                    <select name="water_policy" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                        <option value="INCLUDED" {% if room.water_policy == 'INCLUDED' %}selected{% endif %}>Included in Rent</option>
+                        <option value="FIXED_EXTRA" {% if room.water_policy == 'FIXED_EXTRA' %}selected{% endif %}>Fixed Extra Monthly Charge</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Amenities Checklist -->
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">3. Amenities Provided</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_wifi" {% if amenities.has_wifi %}checked{% endif %} class="rounded text-indigo-600"> <span>Wi-Fi</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_attached_bathroom" {% if amenities.has_attached_bathroom %}checked{% endif %} class="rounded text-indigo-600"> <span>Attached Bathroom</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_ac" {% if amenities.has_ac %}checked{% endif %} class="rounded text-indigo-600"> <span>AC</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_cooler" {% if amenities.has_cooler %}checked{% endif %} class="rounded text-indigo-600"> <span>Cooler</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_bed" {% if amenities.has_bed %}checked{% endif %} class="rounded text-indigo-600"> <span>Bed</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_mattress" {% if amenities.has_mattress %}checked{% endif %} class="rounded text-indigo-600"> <span>Mattress</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_study_table" {% if amenities.has_study_table %}checked{% endif %} class="rounded text-indigo-600"> <span>Study Table</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_cupboard" {% if amenities.has_cupboard %}checked{% endif %} class="rounded text-indigo-600"> <span>Almirah / Wardrobe</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_geyser" {% if amenities.has_geyser %}checked{% endif %} class="rounded text-indigo-600"> <span>Geyser</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_ro_water" {% if amenities.has_ro_water %}checked{% endif %} class="rounded text-indigo-600"> <span>RO Water</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_power_backup" {% if amenities.has_power_backup %}checked{% endif %} class="rounded text-indigo-600"> <span>Power Backup</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700">
+                    <input type="checkbox" name="has_washing_machine" {% if amenities.has_washing_machine %}checked{% endif %} class="rounded text-indigo-600"> <span>Washing Machine</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- 4. Manage Current Photos & Upload New Ones -->
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">4. Room Photos</h2>
+            
+            <!-- Existing Images with Delete Option -->
+            {% if room.room_images %}
+                <p class="text-xs font-bold text-slate-500 uppercase mb-2">Existing Photos ({{ room.room_images|length }})</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                    {% for img in room.room_images %}
+                        <div class="relative group rounded-lg overflow-hidden border border-slate-200 h-28 bg-slate-100">
+                            <img src="https://your-project-id.supabase.co/storage/v1/object/public/property-media/{{ img.storage_path }}" 
+                                 class="w-full h-full object-cover">
+                            
+                            <!-- Delete button on top-right -->
+                            <button type="submit" 
+                                    formaction="{{ url_for('landlord_bp.delete_room_image', image_id=img.id) }}"
+                                    formmethod="POST"
+                                    onclick="return confirm('Is photo ko delete karein?');"
+                                    class="absolute top-1.5 right-1.5 p-1 bg-red-600 text-white rounded shadow hover:bg-red-700 text-xs">
+                                ✕
+                            </button>
+                            <input type="hidden" name="room_id" value="{{ room.id }}">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Add More Images -->
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Add More Room Photos</label>
+            <input type="file" name="new_room_images" multiple accept="image/*"
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700">
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 flex justify-end gap-3">
+            <a href="{{ url_for('landlord_bp.properties') }}" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</a>
+            <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm shadow-sm transition">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -50,6 +50,121 @@ def dashboard():
         pending_inquiries=pending_inquiries
     )
 
+@landlord_bp.route("/rooms/<room_id>/edit", methods=["GET", "POST"])
+@login_required
+@landlord_approved_required
+def edit_room(room_id: str):
+    """Room ki details, rent, policies aur amenities edit karna."""
+    user_id = session.get("user_id")
+    service = get_service_client()
+
+    # Fetch room details along with amenities, images, and property check
+    res = service.table("rooms").select(
+        "*, amenities(*), room_images(*), properties!inner(id, title, owner_id)"
+    ).eq("id", room_id).eq("properties.owner_id", user_id).execute()
+
+    if not res.data:
+        flash("Room nahi mila ya access denied hai.", "danger")
+        return redirect(url_for("landlord_bp.properties"))
+
+    room = res.data[0]
+    amenities = room.get("amenities")
+    if isinstance(amenities, list) and amenities:
+        amenities = amenities[0]
+    elif not isinstance(amenities, dict):
+        amenities = {}
+
+    if request.method == "POST":
+        room_name = sanitize_string(request.form.get("room_name"))
+        room_type = sanitize_string(request.form.get("room_type"))
+        monthly_rent = float(request.form.get("monthly_rent", 0))
+        security_deposit = float(request.form.get("security_deposit", 0))
+        advance_rent = float(request.form.get("advance_rent", 0))
+        cooler_charges = float(request.form.get("cooler_charges", 0))
+        electricity_policy = sanitize_string(request.form.get("electricity_policy"))
+        water_policy = sanitize_string(request.form.get("water_policy"))
+        availability_status = sanitize_string(request.form.get("availability_status", "AVAILABLE"))
+
+        if monthly_rent <= 0:
+            flash("Monthly rent 0 se zyada honi chahiye.", "warning")
+            return render_template("landlord/edit_room.html", room=room, amenities=amenities)
+
+        room_data = {
+            "room_name": room_name,
+            "room_type": room_type,
+            "monthly_rent": monthly_rent,
+            "security_deposit": security_deposit,
+            "advance_rent": advance_rent,
+            "cooler_charges": cooler_charges,
+            "electricity_policy": electricity_policy,
+            "water_policy": water_policy,
+            "availability_status": availability_status
+        }
+
+        amenities_data = {
+            "has_wifi": request.form.get("has_wifi") == "on",
+            "has_attached_bathroom": request.form.get("has_attached_bathroom") == "on",
+            "has_ac": request.form.get("has_ac") == "on",
+            "has_cooler": request.form.get("has_cooler") == "on",
+            "has_bed": request.form.get("has_bed") == "on",
+            "has_mattress": request.form.get("has_mattress") == "on",
+            "has_study_table": request.form.get("has_study_table") == "on",
+            "has_chair": request.form.get("has_chair") == "on",
+            "has_cupboard": request.form.get("has_cupboard") == "on",
+            "has_geyser": request.form.get("has_geyser") == "on",
+            "has_ro_water": request.form.get("has_ro_water") == "on",
+            "has_power_backup": request.form.get("has_power_backup") == "on",
+            "has_cctv": request.form.get("has_cctv") == "on",
+            "has_washing_machine": request.form.get("has_washing_machine") == "on"
+        }
+
+        success, msg = RoomService.update_room(room_id, user_id, room_data, amenities_data)
+
+        # Nayi images upload handle karein agar select ki gayi hon
+        new_files = request.files.getlist("new_room_images")
+        prop_id = room.get("properties", {}).get("id")
+        for f in new_files:
+            if f and f.filename != "":
+                s_ok, s_path = StorageService.upload_property_media(prop_id, f, f"rooms/{room_id}")
+                if s_ok:
+                    service.table("room_images").insert({
+                        "room_id": room_id,
+                        "storage_path": s_path,
+                        "is_primary": False
+                    }).execute()
+
+        if success:
+            flash("Room details update ho gayi hain!", "success")
+            return redirect(url_for("landlord_bp.properties"))
+        else:
+            flash(f"Update failed: {msg}", "danger")
+
+    return render_template("landlord/edit_room.html", room=room, amenities=amenities)
+
+
+@landlord_bp.route("/rooms/<room_id>/delete", methods=["POST"])
+@login_required
+@landlord_approved_required
+def delete_room(room_id: str):
+    """Room ko permanently delete karna."""
+    user_id = session.get("user_id")
+    success, msg = RoomService.delete_room(room_id, user_id)
+    flash(msg, "info" if success else "danger")
+    return redirect(url_for("landlord_bp.properties"))
+
+
+@landlord_bp.route("/rooms/images/<image_id>/delete", methods=["POST"])
+@login_required
+@landlord_approved_required
+def delete_room_image(image_id: str):
+    """Room ki specific photo delete karna."""
+    user_id = session.get("user_id")
+    room_id = request.form.get("room_id")
+    success, msg = RoomService.delete_room_image(image_id, user_id)
+    flash(msg, "info" if success else "danger")
+    if room_id:
+        return redirect(url_for("landlord_bp.edit_room", room_id=room_id))
+    return redirect(url_for("landlord_bp.properties"))
 
 @landlord_bp.route("/verification", methods=["GET", "POST"])
 @login_required

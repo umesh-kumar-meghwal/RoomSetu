@@ -11,6 +11,62 @@ logger = logging.getLogger(__name__)
 
 class RoomService:
     """Manages individual rooms within a property."""
+    @staticmethod
+    def delete_room(room_id: str, owner_id: str) -> Tuple[bool, str]:
+        """
+        Room delete karta hai aur ensures ki sirf property owner hi delete kar sake.
+        Cascade delete se amenities aur room_images auto-delete ho jayenge.
+        """
+        service = get_service_client()
+        try:
+            # Check ownership
+            check_res = service.table("rooms").select(
+                "id, properties!inner(owner_id)"
+            ).eq("id", room_id).eq("properties.owner_id", owner_id).execute()
+
+            if not check_res.data:
+                return False, "Unauthorized: Aap is room ke owner nahi hain."
+
+            # Delete room
+            service.table("rooms").delete().eq("id", room_id).execute()
+            return True, "Room safalta-purvak delete ho gaya."
+        except Exception as exc:
+            logger.error(f"Failed to delete room {room_id}: {exc}")
+            return False, str(exc)
+
+    @staticmethod
+    def delete_room_image(image_id: str, owner_id: str) -> Tuple[bool, str]:
+        """Specific room image ko delete karta hai."""
+        service = get_service_client()
+        try:
+            # Verify owner via rooms -> properties
+            img_res = service.table("room_images").select(
+                "id, storage_path, rooms!inner(properties!inner(owner_id))"
+            ).eq("id", image_id).execute()
+
+            if not img_res.data:
+                return False, "Image nahi mili ya aap unauthorized hain."
+
+            # Ownership check
+            img_data = img_res.data[0]
+            prop_owner = img_data.get("rooms", {}).get("properties", {}).get("owner_id")
+            if prop_owner != owner_id:
+                return False, "Unauthorized action."
+
+            # Supabase storage se file remove karein
+            storage_path = img_data.get("storage_path")
+            if storage_path:
+                try:
+                    service.storage.from_(Config.STORAGE_BUCKET_PROPERTY_MEDIA).remove([storage_path])
+                except Exception as st_err:
+                    logger.warning(f"Storage file delete warning: {st_err}")
+
+            # Database record delete karein
+            service.table("room_images").delete().eq("id", image_id).execute()
+            return True, "Image delete ho gayi."
+        except Exception as exc:
+            logger.error(f"Error deleting room image {image_id}: {exc}")
+            return False, str(exc)
 
     @staticmethod
     def add_room(property_id: str, owner_id: str, room_data: Dict[str, Any], amenities_data: Dict[str, Any]) -> Tuple[bool, str]:
@@ -49,7 +105,7 @@ class RoomService:
         except Exception as exc:
             logger.error(f"Room creation error: {exc}")
             return False, str(exc)
-
+        
     @staticmethod
     def update_room(room_id: str, owner_id: str, room_data: Dict[str, Any], amenities_data: Dict[str, Any]) -> Tuple[bool, str]:
         """Updates room details and amenities."""
