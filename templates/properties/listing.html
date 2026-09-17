@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Explore Student Rooms & PGs across India - RoomSetu{% endblock %}
+{% block title %}RoomSetu — India's #1 Zero Brokerage Student Rental & PG Platform{% endblock %}
 
 {% block head %}
 <style>
@@ -16,15 +16,13 @@
     .animate-marquee {
         display: flex;
         width: max-content;
-        animation: marquee-scroll 32s linear infinite;
+        animation: marquee-scroll 35s linear infinite;
     }
 
-    /* Hover karne par scroll pause ho jaye */
     .animate-marquee:hover {
         animation-play-state: paused;
     }
 
-    /* Left aur Right par subtle gradient blur fade */
     .marquee-container {
         position: relative;
         overflow: hidden;
@@ -35,82 +33,143 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Hero Filter Header -->
-    <div class="bg-gradient-to-r from-indigo-900 to-slate-900 rounded-2xl p-6 sm:p-10 text-white shadow-md mb-8">
-        <h1 class="text-2xl sm:text-4xl font-black tracking-tight">Find Verified Student Rooms & PGs</h1>
-        <p class="text-indigo-200 text-sm sm:text-base mt-2 max-w-2xl">
-            Explore monthly rental rooms near top universities, colleges, and coaching hubs across India with verified house rules.
-        </p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-16">
 
-        <!-- Search & Filter Form -->
-        <form method="GET" action="{{ url_for('properties_bp.browse') }}" class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            <div>
-                <label class="block text-xs font-bold text-indigo-200 uppercase mb-1">City</label>
-                <input type="text" name="city" value="{{ filters.city }}" placeholder="e.g. Kota, Pune, Delhi"
-                       class="w-full px-3.5 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-indigo-300 text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition">
+    <!-- ================= 1. HERO SEARCH & FILTER SECTION ================= -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 rounded-3xl p-6 sm:p-12 text-white shadow-2xl border border-indigo-800/40">
+        <!-- Glow Orbs in Background -->
+        <div class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-3xl">
+            <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black tracking-wider uppercase bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 backdrop-blur-md mb-4">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                100% Zero Brokerage • Verified Owners Only
+            </span>
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+                Ghar Jaisa Room, <br class="hidden sm:inline">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-400">Seedhe Owner Se.</span>
+            </h1>
+            <p class="text-slate-300 text-sm sm:text-base lg:text-lg mt-3 font-normal max-w-2xl leading-relaxed">
+                Discover verified single rooms, double-sharing PGs, flats, and student hostels near coaching institutes & colleges across India. Transparent curfews, food policies & zero hidden fees.
+            </p>
+        </div>
+
+        <!-- Search & Filter Form Card -->
+        <form method="GET" action="{{ url_for('properties_bp.browse') }}" class="relative z-10 mt-8 bg-white/10 backdrop-blur-xl border border-white/20 p-4 sm:p-6 rounded-2xl shadow-xl space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-indigo-200 uppercase tracking-wider mb-1">City</label>
+                    <input type="text" name="city" value="{{ filters.city }}" placeholder="e.g. Kota, Pune, Delhi"
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-indigo-200 uppercase tracking-wider mb-1">Locality / Area</label>
+                    <input type="text" name="locality" value="{{ filters.locality }}" placeholder="e.g. Dadabari, Kothrud"
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-indigo-200 uppercase tracking-wider mb-1">Room Sharing</label>
+                    <select name="room_type" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/20 text-white text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition font-medium">
+                        <option value="">All Sharing Types</option>
+                        <option value="SINGLE" {% if filters.room_type == 'SINGLE' %}selected{% endif %}>Single Occupancy</option>
+                        <option value="DOUBLE_SHARING" {% if filters.room_type == 'DOUBLE_SHARING' %}selected{% endif %}>Double Sharing</option>
+                        <option value="TRIPLE_SHARING" {% if filters.room_type == 'TRIPLE_SHARING' %}selected{% endif %}>Triple Sharing</option>
+                        <option value="FOUR_SHARING" {% if filters.room_type == 'FOUR_SHARING' %}selected{% endif %}>Four Sharing</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-indigo-200 uppercase tracking-wider mb-1">Max Budget (₹/mo)</label>
+                    <input type="number" name="max_rent" value="{{ filters.max_rent }}" placeholder="e.g. 8000"
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition font-medium">
+                </div>
+
+                <div class="flex items-end">
+                    <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-extrabold rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Find Stays
+                    </button>
+                </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-indigo-200 uppercase mb-1">Locality</label>
-                <input type="text" name="locality" value="{{ filters.locality }}" placeholder="e.g. Kothrud, Vigyan Nagar"
-                       class="w-full px-3.5 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-indigo-300 text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition">
-            </div>
+            <!-- Amenities Badges & Clear Filter -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/10 text-xs font-medium text-indigo-100">
+                <div class="flex flex-wrap items-center gap-4">
+                    <label class="inline-flex items-center space-x-1.5 cursor-pointer hover:text-white transition">
+                        <input type="checkbox" name="has_wifi" value="1" {% if filters.has_wifi %}checked{% endif %} class="rounded text-indigo-600 focus:ring-0">
+                        <span>Free High-Speed Wi-Fi</span>
+                    </label>
+                    <label class="inline-flex items-center space-x-1.5 cursor-pointer hover:text-white transition">
+                        <input type="checkbox" name="has_ac" value="1" {% if filters.has_ac %}checked{% endif %} class="rounded text-indigo-600 focus:ring-0">
+                        <span>Air Conditioned (AC)</span>
+                    </label>
+                    <label class="inline-flex items-center space-x-1.5 cursor-pointer hover:text-white transition">
+                        <input type="checkbox" name="has_attached_bathroom" value="1" {% if filters.has_attached_bathroom %}checked{% endif %} class="rounded text-indigo-600 focus:ring-0">
+                        <span>Attached Bathroom</span>
+                    </label>
+                </div>
 
-            <div>
-                <label class="block text-xs font-bold text-indigo-200 uppercase mb-1">Room Sharing</label>
-                <select name="room_type" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-white/20 text-white text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition">
-                    <option value="">All Room Types</option>
-                    <option value="SINGLE" {% if filters.room_type == 'SINGLE' %}selected{% endif %}>Single Occupancy</option>
-                    <option value="DOUBLE_SHARING" {% if filters.room_type == 'DOUBLE_SHARING' %}selected{% endif %}>Double Sharing</option>
-                    <option value="TRIPLE_SHARING" {% if filters.room_type == 'TRIPLE_SHARING' %}selected{% endif %}>Triple Sharing</option>
-                    <option value="FOUR_SHARING" {% if filters.room_type == 'FOUR_SHARING' %}selected{% endif %}>Four Sharing</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-indigo-200 uppercase mb-1">Max Monthly Rent</label>
-                <input type="number" name="max_rent" value="{{ filters.max_rent }}" placeholder="e.g. 10000"
-                       class="w-full px-3.5 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-indigo-300 text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition">
-            </div>
-
-            <div class="flex items-end">
-                <button type="submit" class="w-full py-2.5 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-lg text-sm transition shadow-sm">
-                    Search Rooms
-                </button>
-            </div>
-
-            <!-- Checkbox Amenities Quick Filters -->
-            <div class="lg:col-span-5 flex flex-wrap gap-4 pt-2 text-xs font-medium text-indigo-100">
-                <label class="inline-flex items-center space-x-1.5 cursor-pointer">
-                    <input type="checkbox" name="has_wifi" value="1" {% if filters.has_wifi %}checked{% endif %} class="rounded text-indigo-600">
-                    <span>Wi-Fi Included</span>
-                </label>
-                <label class="inline-flex items-center space-x-1.5 cursor-pointer">
-                    <input type="checkbox" name="has_ac" value="1" {% if filters.has_ac %}checked{% endif %} class="rounded text-indigo-600">
-                    <span>Air Conditioned (AC)</span>
-                </label>
-                <label class="inline-flex items-center space-x-1.5 cursor-pointer">
-                    <input type="checkbox" name="has_attached_bathroom" value="1" {% if filters.has_attached_bathroom %}checked{% endif %} class="rounded text-indigo-600">
-                    <span>Attached Washroom</span>
-                </label>
-                <a href="{{ url_for('properties_bp.browse') }}" class="text-indigo-300 hover:underline ml-auto">Reset Filters</a>
+                <div class="flex items-center gap-3">
+                    <a href="{{ url_for('student_bp.nearby_rooms') }}" class="text-emerald-300 hover:text-emerald-200 font-bold inline-flex items-center gap-1 transition">
+                        <span>📍 Open Nearby Map Radar</span>
+                    </a>
+                    <span>•</span>
+                    <a href="{{ url_for('properties_bp.browse') }}" class="text-slate-300 hover:text-white underline transition">Reset</a>
+                </div>
             </div>
         </form>
     </div>
 
-    <!-- Listings Grid -->
+    <!-- ================= 2. PLATFORM IMPACT & TRUST METRICS ================= -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <div class="text-3xl sm:text-4xl font-black text-indigo-600 mb-1">₹0</div>
+            <div class="text-xs font-bold text-slate-900 uppercase tracking-wider">Brokerage Fee</div>
+            <p class="text-[11px] text-slate-500 mt-1">Direct contact with verified owners</p>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <div class="text-3xl sm:text-4xl font-black text-emerald-600 mb-1">100%</div>
+            <div class="text-xs font-bold text-slate-900 uppercase tracking-wider">KYC Verified Landlords</div>
+            <p class="text-[11px] text-slate-500 mt-1">Meter bills & deeds vetted by admin</p>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <div class="text-3xl sm:text-4xl font-black text-slate-900 mb-1">25+</div>
+            <div class="text-xs font-bold text-slate-900 uppercase tracking-wider">Coaching & College Hubs</div>
+            <p class="text-[11px] text-slate-500 mt-1">Kota, Pune, Delhi NCR, Bengaluru & more</p>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <div class="text-3xl sm:text-4xl font-black text-amber-500 mb-1">4.9 ★</div>
+            <div class="text-xs font-bold text-slate-900 uppercase tracking-wider">Student Satisfaction</div>
+            <p class="text-[11px] text-slate-500 mt-1">Real reviews by verified residents</p>
+        </div>
+    </div>
+
+    <!-- ================= 3. AVAILABLE ROOMS LISTINGS GRID ================= -->
     <div>
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-bold text-slate-900">
-                Available Student Rooms ({{ rooms|length }})
-            </h2>
-            <a href="{{ url_for('student_bp.nearby_rooms') }}" class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:underline">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                </svg>
-                Switch to Map View
-            </a>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-slate-200 gap-3">
+            <div>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">
+                    Available Student Rooms Across India
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Real-time inventory: Only vacant rooms from approved owners are displayed</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
+                    {{ rooms|length }} Vacant Rooms Live
+                </span>
+                <a href="{{ url_for('student_bp.nearby_rooms') }}" class="hidden sm:inline-flex items-center text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-lg shadow-sm transition">
+                    📍 Switch to Map View
+                </a>
+            </div>
         </div>
 
         {% if rooms %}
@@ -120,21 +179,117 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="text-center py-20 bg-white border border-slate-200 rounded-xl shadow-sm">
-                <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                </svg>
-                <h3 class="text-base font-bold text-slate-800">No rooms match your search</h3>
-                <p class="text-sm text-slate-500 mt-1 mb-4">Try clearing filters or searching for another city/locality.</p>
-                <a href="{{ url_for('properties_bp.browse') }}" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg text-sm hover:bg-indigo-700 transition shadow-sm">
-                    View All Rooms
+            <div class="text-center py-20 bg-white border border-slate-200 rounded-3xl shadow-sm p-8 max-w-xl mx-auto">
+                <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-black text-slate-900">No rooms match your exact filter</h3>
+                <p class="text-xs text-slate-500 mt-1 mb-6 leading-relaxed">
+                    Try broadening your search budget or removing specific amenity constraints to discover more options in your city.
+                </p>
+                <a href="{{ url_for('properties_bp.browse') }}" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition shadow-sm inline-block">
+                    Clear Filters & Show All
                 </a>
             </div>
         {% endif %}
     </div>
 
-    <!-- ================= LIVE STUDENT FEEDBACK TICKER (MARQUEE LINE) ================= -->
-    <div class="mt-16 pt-10 border-t border-slate-200">
+    <!-- ================= 4. HOW ROOMSETU WORKS (3 EASY STEPS) ================= -->
+    <div class="bg-gradient-to-b from-slate-50 to-white border border-slate-200 rounded-3xl p-6 sm:p-12 shadow-sm">
+        <div class="text-center max-w-2xl mx-auto mb-10">
+            <span class="text-xs font-black tracking-wider uppercase text-indigo-600 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
+                Simple & Hassle-Free
+            </span>
+            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">How RoomSetu Works for Students</h3>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">No middlemen, no roaming in summer heat asking strangers. Find your ideal room in 3 simple steps.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <!-- Step 1 -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition relative flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-indigo-100 text-indigo-700 font-black text-lg rounded-2xl flex items-center justify-center mb-4 shadow-sm">
+                        01
+                    </div>
+                    <h4 class="text-base font-bold text-slate-900">Search or Use Location Radar</h4>
+                    <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                        Apne coaching centre ya college ka naam dalein ya <strong>"Nearby Rooms Radar"</strong> click karein. 1 km se 10 km ke radius me available rooms turant map par dikh jayenge.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-indigo-600">
+                    GPS Accurate Distance Calculation →
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition relative flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-700 font-black text-lg rounded-2xl flex items-center justify-center mb-4 shadow-sm">
+                        02
+                    </div>
+                    <h4 class="text-base font-bold text-slate-900">Check Transparent Rules & Bills</h4>
+                    <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                        Room photos ke saath gate closing time, night entry, day guests, cooking rules, electricity meter rate aur security deposit policy pehle hi dekh lein.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-emerald-600">
+                    Zero Hidden Surprises →
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition relative flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-amber-100 text-amber-700 font-black text-lg rounded-2xl flex items-center justify-center mb-4 shadow-sm">
+                        03
+                    </div>
+                    <h4 class="text-base font-bold text-slate-900">Direct Connect with Landlord</h4>
+                    <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                        Move-in date ke saath 1-click inquiry submit karein. Landlord ke accept karte hi owner ka direct phone number aur email mil jayega. Shifting karein aaram se!
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-amber-600">
+                    Save ₹5,000 - ₹15,000 Brokerage →
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 5. POPULAR STUDENT HUBS (TOP CITIES) ================= -->
+    <div>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 mb-6 gap-2">
+            <div>
+                <h3 class="text-xl sm:text-2xl font-black text-slate-900">Explore India's Top Student Hubs</h3>
+                <p class="text-xs text-slate-500">Fast-track discovery in premier education, engineering & medical coaching cities</p>
+            </div>
+            <span class="text-xs font-bold text-slate-400">Click to filter by city</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            {% set cities = [
+                {'name': 'Kota', 'tag': 'JEE & NEET Hub', 'icon': '📚'},
+                {'name': 'Pune', 'tag': 'Oxford of the East', 'icon': '🎓'},
+                {'name': 'Delhi', 'tag': 'DU & UPSC Hub', 'icon': '🏛️'},
+                {'name': 'Bengaluru', 'tag': 'Tech & Engineering', 'icon': '💻'},
+                {'name': 'Dehradun', 'tag': 'Colleges & Schools', 'icon': '⛰️'},
+                {'name': 'Jaipur', 'tag': 'University Hub', 'icon': '🏰'}
+            ] %}
+
+            {% for c in cities %}
+                <a href="{{ url_for('properties_bp.browse', city=c.name) }}" 
+                   class="bg-white border border-slate-200 rounded-2xl p-4 text-center hover:border-indigo-500 hover:shadow-md transition group block">
+                    <span class="text-2xl block mb-1 group-hover:scale-110 transition duration-200">{{ c.icon }}</span>
+                    <h4 class="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition">{{ c.name }}</h4>
+                    <p class="text-[10px] text-slate-400 mt-0.5 truncate">{{ c.tag }}</p>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ================= 6. LIVE STUDENT FEEDBACK TICKER (MARQUEE LINE) ================= -->
+    <div class="pt-6 border-t border-slate-200">
         <div class="text-center mb-6">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wide uppercase bg-indigo-50 text-indigo-700 border border-indigo-200">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
@@ -148,7 +303,6 @@
         <div class="marquee-container py-3">
             <div class="animate-marquee flex gap-5">
                 
-                <!-- Macro to Render Review Card uniformly -->
                 {% macro render_review_card(item) %}
                     <div class="w-80 sm:w-96 flex-shrink-0 bg-white border border-slate-200 hover:border-indigo-400 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group">
                         <div>
@@ -190,17 +344,14 @@
                     </div>
                 {% endmacro %}
 
-                <!-- Agar Database mein real reviews hain toh unko loop karein (Duplicated 2x for seamless continuous infinite loop) -->
                 {% if public_reviews and public_reviews|length > 0 %}
                     {% for item in public_reviews %}
                         {{ render_review_card(item) }}
                     {% endfor %}
-                    <!-- Duplicate copy for seamless loop -->
                     {% for item in public_reviews %}
                         {{ render_review_card(item) }}
                     {% endfor %}
                 {% else %}
-                    <!-- Fallback Sample Feedback Data if database is fresh -->
                     {% set sample_reviews = [
                         {'student': {'full_name': 'Aarav Sharma'}, 'rating': 5, 'comment': 'Kota me Allen coaching ke paas best single room mila. Owner uncle ka behaviour bahut acha hai aur WiFi speed 100 Mbps aati hai!', 'property': {'title': 'Krishna PG Residency', 'locality': 'Vigyan Nagar', 'city': 'Kota'}, 'created_at': 'Today'},
                         {'student': {'full_name': 'Pooja Iyer'}, 'rating': 5, 'comment': 'Kothrud me safe girls hostel dhoondh rahi thi. 24-hr security, RO water aur non-veg allowed policies ekdum transparent hain.', 'property': {'title': 'Sai Girls Hostel', 'locality': 'Kothrud', 'city': 'Pune'}, 'created_at': 'Yesterday'},
@@ -220,7 +371,125 @@
             </div>
         </div>
     </div>
-    <!-- ================= END STUDENT FEEDBACK TICKER ================= -->
+
+    <!-- ================= 7. COMPARISON TABLE: TRADITIONAL BROKER VS ROOMSETU ================= -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm overflow-hidden">
+        <div class="text-center max-w-xl mx-auto mb-8">
+            <h3 class="text-2xl font-black text-slate-900">Why Students Prefer RoomSetu</h3>
+            <p class="text-xs text-slate-500 mt-1">See how RoomSetu saves your hard-earned money and time compared to local brokers.</p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-200 text-slate-400 font-bold uppercase tracking-wider">
+                        <th class="py-3 px-4">Feature / Benefit</th>
+                        <th class="py-3 px-4 text-red-600 bg-red-50/50 rounded-tl-xl">Traditional Local Brokers</th>
+                        <th class="py-3 px-4 text-indigo-700 bg-indigo-50 font-black rounded-tr-xl">RoomSetu Platform</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                    <tr>
+                        <td class="py-3.5 px-4 font-bold text-slate-900">Brokerage / Commission</td>
+                        <td class="py-3.5 px-4 text-red-600 bg-red-50/50">15 Days to 1 Month Rent (₹5,000 - ₹15,000)</td>
+                        <td class="py-3.5 px-4 text-emerald-700 bg-indigo-50 font-bold">₹0 Always (Free Forever)</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3.5 px-4 font-bold text-slate-900">Owner Verification</td>
+                        <td class="py-3.5 px-4 text-slate-500 bg-red-50/50">No Verification (Fake promises)</td>
+                        <td class="py-3.5 px-4 text-indigo-900 bg-indigo-50 font-bold">Electricity Bill & Deed Checked</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3.5 px-4 font-bold text-slate-900">Rules & Curfew Clarity</td>
+                        <td class="py-3.5 px-4 text-slate-500 bg-red-50/50">Revealed only after shifting</td>
+                        <td class="py-3.5 px-4 text-indigo-900 bg-indigo-50 font-bold">Clear Curfews & Food Policies Before Visit</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3.5 px-4 font-bold text-slate-900">Distance from College</td>
+                        <td class="py-3.5 px-4 text-slate-500 bg-red-50/50">"Bas 2 minute dur hai" (Fake claims)</td>
+                        <td class="py-3.5 px-4 text-indigo-900 bg-indigo-50 font-bold">Exact GPS Map Radar Calculation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= 8. FREQUENTLY ASKED QUESTIONS (FAQ) ================= -->
+    <div class="max-w-3xl mx-auto space-y-4">
+        <div class="text-center mb-6">
+            <h3 class="text-2xl font-black text-slate-900">Frequently Asked Questions</h3>
+            <p class="text-xs text-slate-500 mt-1">Sabhi aam sawaalon ke jawab jo students aur parents poochte hain</p>
+        </div>
+
+        <!-- FAQ Item 1 -->
+        <details class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm group">
+            <summary class="font-bold text-sm text-slate-900 cursor-pointer flex justify-between items-center">
+                <span>Kya RoomSetu par room dhundne ke koi charges hain?</span>
+                <span class="text-indigo-600 font-black text-base group-open:rotate-180 transition duration-200">↓</span>
+            </summary>
+            <p class="text-xs text-slate-600 mt-2.5 leading-relaxed">
+                Nahi! RoomSetu students ke liye 100% free platform hai. Aap bina kisi brokerage ya platform fee ke direct property owner se contact kar sakte hain.
+            </p>
+        </details>
+
+        <!-- FAQ Item 2 -->
+        <details class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm group">
+            <summary class="font-bold text-sm text-slate-900 cursor-pointer flex justify-between items-center">
+                <span>Mujhe kaise pata chalega ki owner genuine hai?</span>
+                <span class="text-indigo-600 font-black text-base group-open:rotate-180 transition duration-200">↓</span>
+            </summary>
+            <p class="text-xs text-slate-600 mt-2.5 leading-relaxed">
+                RoomSetu par koi bhi landlord tab tak room publish nahi kar sakta jab tak admin uske Bijli Bill ya Property Tax Receipt ki jaanch karke KYC approve na kar de. Sath hi real student reviews bhi available hote hain.
+            </p>
+        </details>
+
+        <!-- FAQ Item 3 -->
+        <details class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm group">
+            <summary class="font-bold text-sm text-slate-900 cursor-pointer flex justify-between items-center">
+                <span>"Nearby Rooms Radar" kaise kaam karta hai?</span>
+                <span class="text-indigo-600 font-black text-base group-open:rotate-180 transition duration-200">↓</span>
+            </summary>
+            <p class="text-xs text-slate-600 mt-2.5 leading-relaxed">
+                Jab aap "Nearby Rooms" page par jakar 'Use My Current Location' par click karte hain, toh browser GPS ke zariye aapke 1km, 3km ya 5km ke dayre mein maujood sabhi vacant rooms ko Leaflet map par show kar deta hai.
+            </p>
+        </details>
+
+        <!-- FAQ Item 4 -->
+        <details class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm group">
+            <summary class="font-bold text-sm text-slate-900 cursor-pointer flex justify-between items-center">
+                <span>Agar koi landlord galat details ya photo daalta hai toh?</span>
+                <span class="text-indigo-600 font-black text-base group-open:rotate-180 transition duration-200">↓</span>
+            </summary>
+            <p class="text-xs text-slate-600 mt-2.5 leading-relaxed">
+                Har property par "Report Listing" ka option hota hai. Student ki complaint aate hi admin team 24 ghante ke andar listing ko suspend aur landlord ka account terminate kar deti hai.
+            </p>
+        </details>
+    </div>
+
+    <!-- ================= 9. LANDLORD CTA BANNER (BECOME A HOST) ================= -->
+    <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="max-w-xl text-center md:text-left">
+            <span class="text-xs font-black uppercase tracking-wider text-indigo-300 bg-white/10 px-3 py-1 rounded-full border border-white/10">
+                For PG & House Owners
+            </span>
+            <h3 class="text-2xl sm:text-3xl font-black mt-3">Are You a Property Owner or PG Landlord?</h3>
+            <p class="text-xs sm:text-sm text-indigo-100 mt-2 leading-relaxed">
+                List your vacant rooms in 2 minutes. Get genuine students directly without giving any 1-month brokerage to brokers. Manage room occupancy with 1-click status toggles.
+            </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {% if current_user.is_authenticated and current_user.role == 'LANDLORD' %}
+                <a href="{{ url_for('landlord_bp.add_property') }}" class="px-6 py-3 bg-white text-indigo-900 font-black text-xs sm:text-sm rounded-xl hover:bg-indigo-50 shadow-lg text-center transition">
+                    + Add New Property
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth_bp.register') }}" class="px-6 py-3 bg-white text-indigo-900 font-black text-xs sm:text-sm rounded-xl hover:bg-indigo-50 shadow-lg text-center transition">
+                    Register as Property Owner →
+                </a>
+            {% endif %}
+        </div>
+    </div>
 
 </div>
 {% endblock %}
