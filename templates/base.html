@@ -4,9 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}RoomSetu - India's Student Rental Platform{% endblock %}</title>
-    <link rel="icon" href="https://instagram.fjai4-1.fna.fbcdn.net/v/t51.82787-19/814761635_18100661585139095_5508911442935077276_n.jpg?stp=dst-jpg_s150x150_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLmRqYW5nby4xMDc5LmMyIn0&_nc_ht=instagram.fjai4-1.fna.fbcdn.net&_nc_cat=111&_nc_oc=Q6cZ2gHHOyo71gVeE-lBt9S1B6hDp9oUOJO8uv3A2atAyN-tnjWum1rVpJOV06BuVvxOSo0-8D1yCIzrebYxLdebTZnN&_nc_ohc=yTPjHFrRliQQ7kNvwHaGupY&_nc_gid=X2FWhyO1gyYfxSlo-ib1MQ&edm=AP4sbd4BAAAA&ccb=7-5&oh=00_AQJLIaCw5ESLg1NJa3VKqgkwWdT6U9lUxtxhrmTt9oQe3Q&oe=6AB1CAA6&_nc_sid=7a9f4b">
     <meta name="google-site-verification" content="56somAV5JLe4x0VZypS-0VRWihFoZ29g5b6Pk5BZ1cA" />
     <!-- Tailwind CSS via CDN -->
+
+
+<!-- ================= SEO META TAGS ================= -->
+    <meta name="description" content="RoomSetu — India's #1 Zero Brokerage Student Room & PG Rental Platform. Find verified single rooms, sharing PGs, flats, and hostels near coaching institutes & colleges in Kota, Pune, Delhi NCR, Bengaluru & Dehradun. 100% verified owners, live GPS map radar, transparent house rules, and zero hidden charges.">
+    
+    <meta name="keywords" content="student room rental india, student pg near me, zero brokerage pg, rooms in kota for students, allen coaching pg kota, student accommodation pune, flats for students delhi university, sharing room near college, student hostel finder, single room for rent monthly, pg without brokerage, roomsetu, student rental platform india">
+    
+    <meta name="author" content="RoomSetu Technologies">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="{{ request.base_url }}">
+
+    <!-- Open Graph (OG) Meta Tags / Social Media Preview (WhatsApp, Telegram, Facebook, LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="RoomSetu">
+    <meta property="og:title" content="{% block og_title %}RoomSetu — India's Zero Brokerage Student Rental & PG Platform{% endblock %}">
+    <meta property="og:description" content="Discover verified student rooms, sharing PGs, and hostels near top coaching hubs and universities across India with zero brokerage fees.">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:image" content="https://placehold.co/1200x630/4f46e5/ffffff?text=RoomSetu+Student+Housing">
+    <meta property="og:locale" content="en_IN">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@RoomSetu">
+    <meta name="twitter:title" content="RoomSetu — Zero Brokerage Student Room & PG Finder">
+    <meta name="twitter:description" content="Explore verified rooms near colleges & coaching centres with direct landlord connection & live map search.">
+    <meta name="twitter:image" content="https://placehold.co/1200x630/4f46e5/ffffff?text=RoomSetu+Student+Housing">
+
+    <!-- Mobile Theme Color -->
+    <meta name="theme-color" content="#4f46e5">
+    <!-- ================= END SEO META TAGS ================= -->
+
+
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
