@@ -116,6 +116,67 @@
                         <span class="{% if a.has_power_backup %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ Power Backup</span>
                     </div>
                 </div>
+                <!-- ================= STUDENT RATING & FEEDBACK SECTION ================= -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mt-6">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Student Reviews & Ratings</h2>
+                        <p class="text-xs text-slate-500">Is property aur room ke bare mein student feedback</p>
+                    </div>
+                    <span class="text-xs font-bold px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg">
+                        ⭐ Verified Reviews
+                    </span>
+                </div>
+
+                <!-- 1. Agar Student Logged In hai toh Form dikhega -->
+                {% if current_user.is_authenticated and current_user.role == 'STUDENT' %}
+                    <form method="POST" action="{{ url_for('properties_bp.add_review', property_id=property.id) }}" class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Apna Review / Rating Dein</h3>
+                        
+                        <div class="mb-3">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Select Rating Stars</label>
+                            <select name="rating" required class="w-full sm:w-56 px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-amber-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <option value="5" selected>⭐⭐⭐⭐⭐ (5 - Excellent Experience)</option>
+                                <option value="4">⭐⭐⭐⭐☆ (4 - Good / Satisfied)</option>
+                                <option value="3">⭐⭐⭐☆☆ (3 - Average Stay)</option>
+                                <option value="2">⭐⭐☆☆☆ (2 - Below Average)</option>
+                                <option value="1">⭐☆☆☆☆ (1 - Poor / Bad Experience)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Feedback Description</label>
+                            <textarea name="comment" rows="3" required placeholder="Owner ka nature kaisa hai? Paani, bijli, WiFi aur cleanliness theek hai? Dusre students ke liye apna review likhein..."
+                                      class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs shadow-sm transition">
+                                Submit Rating & Review
+                            </button>
+                        </div>
+                    </form>
+
+                <!-- 2. Agar Student Login Nahi Hai -->
+                {% elif not current_user.is_authenticated %}
+                    <div class="p-4 bg-indigo-50/60 rounded-xl border border-indigo-100 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-bold text-indigo-950">Kya aapne yahan stay kiya hai?</p>
+                            <p class="text-[11px] text-indigo-700">Rating ya feedback dene ke liye pehle student account se sign in karein.</p>
+                        </div>
+                        <a href="{{ url_for('auth_bp.login') }}" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs transition text-center whitespace-nowrap">
+                            Sign In to Rate →
+                        </a>
+                    </div>
+
+                <!-- 3. Agar Landlord Login Hai Toh Notice Dikhega -->
+                {% else %}
+                    <div class="p-3 bg-slate-50 rounded-lg text-xs text-slate-500 border border-slate-200 mb-4">
+                        Aap <strong>{{ current_user.role }}</strong> account se logged in hain. Sirf verified student accounts hi review submit kar sakte hain.
+                    </div>
+                {% endif %}
+            </div>
+            <!-- ================= END RATING SECTION ================= -->
             </div>
         </div>
 
