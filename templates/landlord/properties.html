@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}My Properties - RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900">My Properties</h1>
+            <p class="text-sm text-slate-500 mt-1">Add rooms, manage rules, and toggle occupancy</p>
+        </div>
+        <a href="{{ url_for('landlord_bp.add_property') }}" class="mt-4 sm:mt-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+            + New Property
+        </a>
+    </div>
+
+    {% if properties %}
+        <div class="space-y-8">
+            {% for prop in properties %}
+                <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between pb-4 border-b border-slate-100 gap-4">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <h2 class="text-lg font-bold text-slate-900">{{ prop.title }}</h2>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800">{{ prop.property_type }}</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">{{ prop.publishing_status }}</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">{{ prop.address_line }}, {{ prop.locality }}, {{ prop.city }} - {{ prop.pincode }}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ url_for('landlord_bp.add_room', property_id=prop.id) }}" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-xs font-bold transition">
+                                + Add Room
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Room Inventory for this Property -->
+                    <div class="mt-6">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Room Inventory ({{ prop.rooms|length }})</h3>
+                        {% if prop.rooms %}
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {% for room in prop.rooms %}
+                                    <div class="border border-slate-200 rounded-lg p-4 bg-slate-50 flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between">
+                                                <h4 class="font-bold text-slate-900 text-sm">{{ room.room_name }}</h4>
+                                                <span class="text-xs font-black px-2 py-0.5 rounded-full
+                                                    {% if room.availability_status == 'AVAILABLE' %} bg-emerald-100 text-emerald-800
+                                                    {% else %} bg-red-100 text-red-800 {% endif %}">
+                                                    {{ room.availability_status }}
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-0.5">Rent: ₹{{ "{:,.0f}".format(room.monthly_rent) }}/month</p>
+                                        </div>
+
+                                        <!-- Toggle Occupancy Status -->
+                                        <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
+                                            <form method="POST" action="{{ url_for('landlord_bp.toggle_room_status', room_id=room.id) }}">
+                                                {% if room.availability_status == 'AVAILABLE' %}
+                                                    <input type="hidden" name="status" value="OCCUPIED">
+                                                    <button type="submit" class="text-xs text-red-600 font-semibold hover:underline">Mark Occupied</button>
+                                                {% else %}
+                                                    <input type="hidden" name="status" value="AVAILABLE">
+                                                    <button type="submit" class="text-xs text-emerald-600 font-semibold hover:underline">Mark Available</button>
+                                                {% endif %}
+                                            </form>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-xs text-slate-400 py-3">No rooms configured yet for this property. Click "+ Add Room" above.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-16 bg-white border border-slate-200 rounded-xl">
+            <h3 class="text-base font-bold text-slate-800">No properties registered</h3>
+            <p class="text-sm text-slate-500 mt-1 mb-4">You have not added any properties to your account yet.</p>
+            <a href="{{ url_for('landlord_bp.add_property') }}" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg text-sm hover:bg-indigo-700 transition">
+                Create First Property
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

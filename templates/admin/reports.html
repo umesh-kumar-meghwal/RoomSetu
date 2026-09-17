@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}User Reports - RoomSetu Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl font-black text-slate-900">Complaints & Listing Reports</h1>
+        <p class="text-sm text-slate-500 mt-1">Review student flags for fake pricing, misleading photos, or occupied rooms</p>
+    </div>
+
+    <div class="space-y-4">
+        {% for report in reports %}
+            <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                    <div>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-100 text-red-800">
+                            {{ report.reason|replace('_', ' ') }}
+                        </span>
+                        <span class="text-xs text-slate-500 ml-2">Reported by: {{ report.reporter.full_name if report.reporter else 'Anonymous' }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold
+                            {% if report.status == 'PENDING' %} bg-amber-100 text-amber-800
+                            {% elif report.status == 'RESOLVED' %} bg-emerald-100 text-emerald-800
+                            {% else %} bg-slate-100 text-slate-700 {% endif %}">
+                            {{ report.status }}
+                        </span>
+                        <span class="text-xs text-slate-400">{{ report.created_at[:10] }}</span>
+                    </div>
+                </div>
+
+                <div class="py-3 text-sm">
+                    <p class="text-slate-800">"{{ report.description }}"</p>
+                    {% if report.property %}
+                        <p class="text-xs text-slate-500 mt-2">Target Property: <strong>{{ report.property.title }}</strong> ({{ report.property.city }})</p>
+                    {% endif %}
+                </div>
+
+                {% if report.status == 'PENDING' %}
+                    <form method="POST" action="{{ url_for('admin_bp.resolve_report', report_id=report.id) }}" class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
+                        <input type="text" name="resolution_notes" required placeholder="Resolution remarks..."
+                               class="flex-grow px-3 py-1.5 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none">
+                        <div class="flex gap-2">
+                            <button type="submit" name="decision" value="RESOLVED" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition">
+                                Resolve
+                            </button>
+                            <button type="submit" name="decision" value="DISMISSED" class="px-3 py-1.5 bg-slate-600 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition">
+                                Dismiss
+                            </button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="text-center py-16 bg-white border border-slate-200 rounded-xl">
+                <p class="text-slate-500">No active complaints or reports filed.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

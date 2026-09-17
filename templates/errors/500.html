@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}500 Server Error - RoomSetu{% endblock %}
+{% block content %}
+<div class="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+    <div class="w-16 h-16 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center mb-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+    </div>
+    <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Internal Server Error</h1>
+    <p class="text-slate-600 max-w-md mb-6">We encountered an unexpected error processing your request. Our technical team has been notified.</p>
+    <a href="{{ url_for('properties_bp.browse') }}" class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">Return to Home</a>
+</div>
+{% endblock %}

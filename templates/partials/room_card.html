@@ -1,0 +1,67 @@
+{# Reusable Room Card Component #}
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col group">
+    <!-- Image Header -->
+    <div class="relative h-48 bg-slate-100 overflow-hidden">
+        {% set img_url = "/static/images/room-placeholder.jpg" %}
+        {% if room.room_images and room.room_images|length > 0 %}
+            {% set img_url = "https://your-project-id.supabase.co/storage/v1/object/public/property-media/" ~ room.room_images[0].storage_path %}
+        {% endif %}
+
+        <img src="{{ img_url }}"
+             alt="{{ room.room_name }}"
+             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+             onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=RoomSetu+Preview'">
+
+        <!-- Availability Badge -->
+        <div class="absolute top-3 left-3">
+            {% if room.availability_status == 'AVAILABLE' %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 shadow-sm">
+                    Available
+                </span>
+            {% elif room.availability_status == 'OCCUPIED' %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 shadow-sm">
+                    Occupied
+                </span>
+            {% else %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 shadow-sm">
+                    Inactive
+                </span>
+            {% endif %}
+        </div>
+
+        <!-- Room Type Badge -->
+        <div class="absolute top-3 right-3">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-900/75 text-white backdrop-blur-sm">
+                {{ room.room_type|replace('_', ' ')|title }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Content Body -->
+    <div class="p-4 flex-grow flex flex-col justify-between">
+        <div>
+            <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">
+                {{ room.properties.locality if room.properties else 'Central Location' }}, {{ room.properties.city if room.properties else '' }}
+            </p>
+            <h3 class="text-base font-bold text-slate-900 line-clamp-1 group-hover:text-indigo-600 transition">
+                {{ room.room_name }}
+            </h3>
+            <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">
+                In: {{ room.properties.title if room.properties else 'Student Residence' }}
+            </p>
+        </div>
+
+        <!-- Pricing & Action Footer -->
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div>
+                <span class="text-lg font-black text-slate-900">₹{{ "{:,.0f}".format(room.monthly_rent) }}</span>
+                <span class="text-xs text-slate-500 font-normal">/month</span>
+            </div>
+
+            <a href="{{ url_for('properties_bp.room_detail', room_id=room.id) }}"
+               class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg text-xs font-semibold transition">
+                View Details
+            </a>
+        </div>
+    </div>
+</div>

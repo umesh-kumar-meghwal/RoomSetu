@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Review KYC - RoomSetu Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <a href="{{ url_for('admin_bp.landlords') }}" class="text-xs font-semibold text-indigo-600 hover:underline">← Back to Verifications</a>
+            <h1 class="text-2xl font-black text-slate-900 mt-1">Review Landlord Verification</h1>
+        </div>
+        <span class="px-3 py-1 rounded-full text-xs font-bold
+            {% if verif.verification_status == 'APPROVED' %} bg-emerald-100 text-emerald-800
+            {% elif verif.verification_status == 'PENDING_REVIEW' %} bg-amber-100 text-amber-800
+            {% else %} bg-slate-100 text-slate-700 {% endif %}">
+            Status: {{ verif.verification_status }}
+        </span>
+    </div>
+
+    <!-- Landlord Profile Information -->
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-6">
+        <h2 class="text-base font-bold text-slate-900 mb-4 border-b border-slate-100 pb-2">Applicant Details</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+            <div>
+                <span class="text-xs font-bold text-slate-400 uppercase">Full Name</span>
+                <p class="font-bold text-slate-900 mt-0.5">{{ verif.profiles.full_name }}</p>
+            </div>
+            <div>
+                <span class="text-xs font-bold text-slate-400 uppercase">Email</span>
+                <p class="font-bold text-slate-900 mt-0.5">{{ verif.profiles.email }}</p>
+            </div>
+            <div>
+                <span class="text-xs font-bold text-slate-400 uppercase">Phone</span>
+                <p class="font-bold text-slate-900 mt-0.5">{{ verif.profiles.phone or 'Not provided' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Identity Document Proof Viewer -->
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-6">
+        <h2 class="text-base font-bold text-slate-900 mb-2">Uploaded Ownership Document Proof</h2>
+        <p class="text-xs text-slate-500 mb-4">Category: <strong>{{ verif.identity_document_type }}</strong></p>
+
+        {% if signed_document_url %}
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg flex flex-col items-center justify-center">
+                <p class="text-xs text-slate-600 mb-3">Temporary signed security link active (expires in 15 minutes).</p>
+                <a href="{{ signed_document_url }}" target="_blank" rel="noopener noreferrer" 
+                   class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+                    Open Document Proof in Secure Tab ↗
+                </a>
+            </div>
+        {% else %}
+            <p class="text-xs text-red-500">No document file on record or signed URL failed to generate.</p>
+        {% endif %}
+    </div>
+
+    <!-- Moderation Decision Form -->
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <h2 class="text-base font-bold text-slate-900 mb-4">Record Moderation Decision</h2>
+        <form method="POST" action="{{ url_for('admin_bp.review_landlord', verification_id=verif.id) }}" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Decision</label>
+                <select name="decision" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    <option value="APPROVED" {% if verif.verification_status == 'APPROVED' %}selected{% endif %}>APPROVE (Grants publishing access)</option>
+                    <option value="REJECTED" {% if verif.verification_status == 'REJECTED' %}selected{% endif %}>REJECT (Denies document verification)</option>
+                    <option value="INFO_REQUIRED" {% if verif.verification_status == 'INFO_REQUIRED' %}selected{% endif %}>REQUEST MORE INFORMATION</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Reviewer Remarks / Rejection Reason</label>
+                <textarea name="review_note" rows="3" required placeholder="Add feedback communicated directly to the landlord..."
+                          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500"></textarea>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-sm text-sm transition">
+                    Commit Decision
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

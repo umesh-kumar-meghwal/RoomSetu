@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Sign In - RoomSetu{% endblock %}
+{% block content %}
+<div class="min-h-[75vh] flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md bg-white border border-slate-200 rounded-xl shadow-sm p-6 sm:p-8">
+        <div class="mb-6 text-center">
+            <h1 class="text-2xl font-bold text-slate-900">Welcome Back</h1>
+            <p class="text-sm text-slate-500 mt-1">Sign in to manage your student room searches or listings</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth_bp.login') }}" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1" for="email">Email Address</label>
+                <input type="email" id="email" name="email" required
+                       class="w-full px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900"
+                       placeholder="student@example.com">
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="block text-sm font-medium text-slate-700" for="password">Password</label>
+                    <a href="{{ url_for('auth_bp.forgot_password') }}" class="text-xs text-indigo-600 hover:underline">Forgot password?</a>
+                </div>
+                <input type="password" id="password" name="password" required
+                       class="w-full px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900"
+                       placeholder="••••••••">
+            </div>
+
+            <button type="submit"
+                    class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition">
+                Sign In
+            </button>
+        </form>
+
+        <p class="text-center text-sm text-slate-600 mt-6">
+            Don't have an account? 
+            <a href="{{ url_for('auth_bp.register') }}" class="text-indigo-600 font-medium hover:underline">Register now</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

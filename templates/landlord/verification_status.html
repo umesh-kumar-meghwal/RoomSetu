@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Owner KYC Verification - RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-6">
+        <h1 class="text-2xl font-black text-slate-900">Landlord Verification</h1>
+        <p class="text-sm text-slate-500 mt-1">Upload proof of property ownership to enable room listings.</p>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm">
+        {% if verif and verif.verification_status == 'APPROVED' %}
+            <div class="text-center py-6">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Account Verified</h3>
+                <p class="text-sm text-slate-500 mt-1 mb-6">Your identity has been confirmed by administration. You can publish properties anytime.</p>
+                <a href="{{ url_for('landlord_bp.properties') }}" class="px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition">Go to Properties</a>
+            </div>
+        {% else %}
+            {% if verif and verif.verification_status == 'PENDING_REVIEW' %}
+                <div class="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-lg text-sm mb-6">
+                    <h4 class="font-bold">Documents Under Review</h4>
+                    <p class="mt-0.5">Your submitted document ({{ verif.identity_document_type }}) is currently being evaluated. You will be notified once reviewed.</p>
+                </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('landlord_bp.verification_status') }}" enctype="multipart/form-data" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="identity_document_type">Document Type</label>
+                    <select id="identity_document_type" name="identity_document_type" required
+                            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="ELECTRICITY_BILL">Latest Electricity Bill (showing meter name & address)</option>
+                        <option value="PROPERTY_TAX_RECEIPT">Municipal Property Tax Receipt</option>
+                        <option value="SALE_DEED">Property Registry / Sale Deed</option>
+                        <option value="RENT_AGREEMENT">Registered Master Rent Agreement</option>
+                    </select>
+                    <p class="text-xs text-slate-400 mt-1">RoomSetu does not store Aadhaar numbers. We verify tenancy using property bills.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="document_file">Select Document (PDF, JPG, or PNG, max 10MB)</label>
+                    <input type="file" id="document_file" name="document_file" required accept=".pdf,.jpg,.jpeg,.png"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                </div>
+
+                <div class="pt-4 border-t border-slate-200">
+                    <button type="submit" class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition">
+                        Submit For Admin Approval
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Add Room - RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-6">
+        <h1 class="text-2xl font-black text-slate-900">Add Room to {{ property.title }}</h1>
+        <p class="text-sm text-slate-500 mt-1">Configure room type, rental pricing, utility policies, and amenities</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('landlord_bp.add_room', property_id=property.id) }}" enctype="multipart/form-data" class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm space-y-6">
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">1. Room Details & Pricing</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Room Identifier / Name</label>
+                    <input type="text" name="room_name" required placeholder="e.g. Room 102 (Balcony Facing)"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Room Type</label>
+                    <select name="room_type" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                        <option value="SINGLE">Single Occupancy</option>
+                        <option value="DOUBLE_SHARING">Double Sharing</option>
+                        <option value="TRIPLE_SHARING">Triple Sharing</option>
+                        <option value="FOUR_SHARING">Four Sharing</option>
+                        <option value="HALL_ROOM">Hall / Common Room</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Monthly Rent (₹)</label>
+                    <input type="number" name="monthly_rent" required min="1" placeholder="8500"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Security Deposit (₹)</label>
+                    <input type="number" name="security_deposit" value="0" min="0"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cooler Charges (₹/mo)</label>
+                    <input type="number" name="cooler_charges" value="0" min="0"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">2. Utilities Billing Policies</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Electricity Policy</label>
+                    <select name="electricity_policy" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                        <option value="METER_SEPARATE">Separate Sub-Meter (Pay per unit)</option>
+                        <option value="INCLUDED">Included in Monthly Rent</option>
+                        <option value="FIXED_EXTRA">Fixed Surcharge per Month</option>
+                        <option value="METER_SHARED">Divided Equally Among Tenants</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Water Policy</label>
+                    <select name="water_policy" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                        <option value="INCLUDED">Included in Monthly Rent</option>
+                        <option value="FIXED_EXTRA">Fixed Extra Monthly Charge</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">3. Furnishing & Amenities</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="has_wifi" checked class="rounded text-indigo-600"> <span>Wi-Fi</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="has_attached_bathroom" checked class="rounded text-indigo-600"> <span>Attached Washroom</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="has_ac" class="rounded text-indigo-600"> <span>Air Conditioner</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="has_cooler" checked class="rounded text-indigo-600"> <span>Air Cooler</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="has_bed" checked class="rounded text-indigo-600"> <span>Bed</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="has_study_table" checked class="rounded text-indigo-600"> <span>Study Table</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="has_cupboard" checked class="rounded text-indigo-600"> <span>Wardrobe/Almirah</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="has_ro_water" checked class="rounded text-indigo-600"> <span>RO Drinking Water</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="has_geyser" checked class="rounded text-indigo-600"> <span>Water Geyser</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="has_power_backup" class="rounded text-indigo-600"> <span>Power Backup</span></label>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">4. Room Photos</h2>
+            <input type="file" name="room_images" multiple accept="image/*"
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700">
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 flex justify-end">
+            <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition">
+                Add Room to Inventory
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

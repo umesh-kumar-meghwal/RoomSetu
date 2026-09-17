@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Admin Control Center - RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Platform Control Center</h1>
+        <p class="text-sm text-slate-500 mt-1">Superuser monitoring, identity verification triage, and moderation</p>
+    </div>
+
+    <!-- Metric Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Landlord KYC</p>
+            <h3 class="text-3xl font-black text-amber-600 mt-1">{{ pending_kyc_count }}</h3>
+            <a href="{{ url_for('admin_bp.landlords', status='PENDING_REVIEW') }}" class="text-xs text-amber-600 font-semibold hover:underline mt-4 inline-block">Review Submissions →</a>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Properties</p>
+            <h3 class="text-3xl font-black text-indigo-600 mt-1">{{ published_properties }} <span class="text-xs text-slate-400 font-normal">/ {{ total_properties }}</span></h3>
+            <a href="{{ url_for('admin_bp.properties') }}" class="text-xs text-indigo-600 font-semibold hover:underline mt-4 inline-block">Manage Properties →</a>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Students Registered</p>
+            <h3 class="text-3xl font-black text-slate-900 mt-1">{{ total_students }}</h3>
+            <a href="{{ url_for('admin_bp.students') }}" class="text-xs text-indigo-600 font-semibold hover:underline mt-4 inline-block">View Students →</a>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">User Complaints</p>
+            <h3 class="text-3xl font-black text-red-600 mt-1">{{ pending_reports_count }}</h3>
+            <a href="{{ url_for('admin_bp.reports') }}" class="text-xs text-red-600 font-semibold hover:underline mt-4 inline-block">Resolve Reports →</a>
+        </div>
+    </div>
+
+    <!-- Quick Navigation Hub -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a href="{{ url_for('admin_bp.landlords') }}" class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:border-indigo-400 transition block">
+            <h3 class="font-bold text-slate-900 text-base">Landlord Approvals</h3>
+            <p class="text-xs text-slate-500 mt-1">Evaluate tenancy proofs, electricity bills, and issue publishing clearances.</p>
+        </a>
+
+        <a href="{{ url_for('admin_bp.properties') }}" class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:border-indigo-400 transition block">
+            <h3 class="font-bold text-slate-900 text-base">Listing Moderation</h3>
+            <p class="text-xs text-slate-500 mt-1">Inspect properties, suspend suspicious rates, or takedown invalid locations.</p>
+        </a>
+
+        <a href="{{ url_for('admin_bp.audit_logs') }}" class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:border-indigo-400 transition block">
+            <h3 class="font-bold text-slate-900 text-base">Audit Trail</h3>
+            <p class="text-xs text-slate-500 mt-1">Review tamper-evident security records of admin actions and status updates.</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

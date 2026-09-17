@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}{{ property.title }} - Student Housing in {{ property.city }} | RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex text-xs font-semibold text-slate-500 mb-4 space-x-2">
+        <a href="{{ url_for('properties_bp.browse') }}" class="hover:text-indigo-600">Properties</a>
+        <span>/</span>
+        <span>{{ property.city }}</span>
+        <span>/</span>
+        <span class="text-slate-900">{{ property.title }}</span>
+    </nav>
+
+    <!-- Property Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between pb-6 border-b border-slate-200 gap-4 mb-6">
+        <div>
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-xs font-black bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    {{ property.property_type }}
+                </span>
+                <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    Verified Listing
+                </span>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-black text-slate-900 mt-2">{{ property.title }}</h1>
+            <p class="text-sm text-slate-600 mt-1 flex items-center">
+                <svg class="w-4 h-4 text-slate-400 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                </svg>
+                {{ property.address_line }}, {{ property.locality }}, {{ property.city }}, {{ property.state }} - {{ property.pincode }}
+            </p>
+        </div>
+
+        <div>
+            <a href="{{ url_for('reports_bp.submit_report', property_id=property.id) }}" class="text-xs text-red-600 font-semibold hover:underline flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                Report Inaccurate Listing
+            </a>
+        </div>
+    </div>
+
+    <!-- Media Gallery -->
+    {% if property.property_images %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            {% for img in property.property_images[:3] %}
+                <div class="h-64 bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
+                    <img src="https://your-project-id.supabase.co/storage/v1/object/public/property-media/{{ img.storage_path }}" 
+                         alt="{{ property.title }}" 
+                         class="w-full h-full object-cover hover:scale-105 transition duration-300"
+                         onerror="this.src='https://placehold.co/800x600/e2e8f0/475569?text=Exterior+Photo'">
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Property Layout: Main Details vs Policies Sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Column -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Description -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-slate-900 mb-3">About the Property</h2>
+                <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{{ property.description }}</p>
+            </div>
+
+            <!-- Available Rooms in this Property -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-slate-900 mb-4">Available Rooms ({{ property.rooms|length }})</h2>
+                {% if property.rooms %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {% for room in property.rooms %}
+                            <div class="border border-slate-200 rounded-xl p-4 hover:border-indigo-400 transition bg-slate-50 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-bold text-slate-900 text-sm">{{ room.room_name }}</h3>
+                                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
+                                            {{ room.room_type|replace('_', ' ')|title }}
+                                        </span>
+                                    </div>
+                                    <p class="text-lg font-black text-slate-900 mt-2">₹{{ "{:,.0f}".format(room.monthly_rent) }} <span class="text-xs text-slate-500 font-normal">/mo</span></p>
+                                </div>
+                                <a href="{{ url_for('properties_bp.room_detail', room_id=room.id) }}" 
+                                   class="mt-4 w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs text-center transition">
+                                    View Room & Amenities →
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-slate-500">No rooms are currently available in this property.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar: Rental Policies & Tenancy Rules -->
+        <div class="space-y-6">
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-base font-bold text-slate-900 mb-4 border-b border-slate-100 pb-2">House Rules & Terms</h2>
+                
+                {% set rules = property.rental_policies %}
+                <ul class="space-y-3 text-xs text-slate-700">
+                    <li class="flex items-center justify-between">
+                        <span class="font-semibold">24-Hour Entry:</span>
+                        <span class="font-bold {% if rules.is_24_hour_entry %}text-emerald-600{% else %}text-amber-600{% endif %}">
+                            {{ 'Allowed' if rules.is_24_hour_entry else 'Restricted' }}
+                        </span>
+                    </li>
+                    {% if rules.gate_closing_time %}
+                        <li class="flex items-center justify-between">
+                            <span class="font-semibold">Gate Closing Time:</span>
+                            <span class="font-bold text-slate-900">{{ rules.gate_closing_time }}</span>
+                        </li>
+                    {% endif %}
+                    <li class="flex items-center justify-between">
+                        <span class="font-semibold">Day Guests:</span>
+                        <span class="font-bold">{{ 'Allowed' if rules.allows_day_guests else 'Not Allowed' }}</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="font-semibold">Overnight Guests:</span>
+                        <span class="font-bold">{{ 'Allowed' if rules.allows_overnight_guests else 'Strictly Forbidden' }}</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="font-semibold">Self Cooking:</span>
+                        <span class="font-bold">{{ 'Permitted' if rules.allows_self_cooking else 'No' }}</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="font-semibold">Non-Veg Food:</span>
+                        <span class="font-bold">{{ 'Allowed' if rules.allows_non_veg else 'Veg Only' }}</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="font-semibold">Notice Period:</span>
+                        <span class="font-bold text-slate-900">{{ rules.notice_period_days or 30 }} Days</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="font-semibold">Rent Payment Day:</span>
+                        <span class="font-bold text-slate-900">{{ rules.rent_due_day_of_month or 5 }}th of Month</span>
+                    </li>
+                </ul>
+
+                {% if rules.custom_rules %}
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <span class="text-xs font-bold text-slate-500 uppercase block mb-1">Additional Rules</span>
+                        <p class="text-xs text-slate-600 italic">{{ rules.custom_rules }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

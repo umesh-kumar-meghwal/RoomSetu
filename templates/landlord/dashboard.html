@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Owner Dashboard - RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Landlord Control Panel</h1>
+            <p class="text-sm text-slate-500 mt-1">Manage listings, rooms, availability, and student inquiries</p>
+        </div>
+        {% if verification_status == 'APPROVED' %}
+            <div class="mt-4 sm:mt-0">
+                <a href="{{ url_for('landlord_bp.add_property') }}" class="inline-flex items-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+                    + Add New Property
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Verification Status Banner -->
+    <div class="mb-8 rounded-xl p-5 border 
+        {% if verification_status == 'APPROVED' %} bg-emerald-50 border-emerald-200 text-emerald-900
+        {% elif verification_status == 'PENDING_REVIEW' %} bg-amber-50 border-amber-200 text-amber-900
+        {% elif verification_status == 'REJECTED' %} bg-red-50 border-red-200 text-red-900
+        {% else %} bg-indigo-50 border-indigo-200 text-indigo-900 {% endif %}">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    Identity Verification: 
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider
+                        {% if verification_status == 'APPROVED' %} bg-emerald-200 text-emerald-900
+                        {% elif verification_status == 'PENDING_REVIEW' %} bg-amber-200 text-amber-900
+                        {% else %} bg-slate-200 text-slate-900 {% endif %}">
+                        {{ verification_status }}
+                    </span>
+                </h3>
+                <p class="text-sm mt-1">
+                    {% if verification_status == 'APPROVED' %}
+                        Your account is verified. You have publishing access to add properties and receive student inquiries.
+                    {% elif verification_status == 'PENDING_REVIEW' %}
+                        Your ownership documents are undergoing administrative review. Approvals typically complete within 24 hours.
+                    {% elif verification_status == 'REJECTED' %}
+                        Document verification rejected. Note: {{ verif_data.rejection_reason or 'Document invalid or unclear' }}.
+                    {% else %}
+                        Please submit electricity meter bills or property tax records to unlock property listings.
+                    {% endif %}
+                </p>
+            </div>
+            {% if verification_status != 'APPROVED' %}
+                <a href="{{ url_for('landlord_bp.verification_status') }}" class="px-4 py-2 bg-white text-slate-900 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-bold transition shadow-sm whitespace-nowrap">
+                    Submit Verification Proof
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Metric Stat Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Properties</p>
+            <h3 class="text-2xl font-black text-slate-900 mt-1">{{ total_properties }}</h3>
+            <a href="{{ url_for('landlord_bp.properties') }}" class="text-xs text-indigo-600 font-semibold hover:underline mt-4 inline-block">Manage properties →</a>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Rooms</p>
+            <h3 class="text-2xl font-black text-slate-900 mt-1">{{ total_rooms }}</h3>
+            <p class="text-xs text-slate-400 mt-4">Across all properties</p>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Available Rooms</p>
+            <h3 class="text-2xl font-black text-emerald-600 mt-1">{{ available_rooms }}</h3>
+            <p class="text-xs text-slate-400 mt-4">Live on student map search</p>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Inquiries</p>
+            <h3 class="text-2xl font-black text-amber-600 mt-1">{{ pending_inquiries }}</h3>
+            <a href="{{ url_for('landlord_bp.inquiries') }}" class="text-xs text-amber-600 font-semibold hover:underline mt-4 inline-block">Review inquiries →</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}My Profile - RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl font-black text-slate-900">Student Profile</h1>
+        <p class="text-sm text-slate-500 mt-1">Manage your account information and contact numbers</p>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm">
+        <form method="POST" action="{{ url_for('student_bp.profile') }}" class="space-y-6">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1" for="email">Email Address</label>
+                <input type="email" id="email" value="{{ profile.get('email', '') }}" disabled
+                       class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 cursor-not-allowed">
+                <p class="text-xs text-slate-400 mt-1">Email address cannot be modified after registration.</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1" for="full_name">Full Name</label>
+                <input type="text" id="full_name" name="full_name" required value="{{ profile.get('full_name', '') }}"
+                       class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1" for="phone">Phone Number (10 Digits)</label>
+                <input type="tel" id="phone" name="phone" pattern="[6-9][0-9]{9}" value="{{ profile.get('phone', '') or '' }}"
+                       class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900"
+                       placeholder="9876543210">
+                <p class="text-xs text-slate-400 mt-1">Owners will receive this contact number when an inquiry is approved.</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Account Role</label>
+                <input type="text" value="{{ profile.get('role', 'STUDENT') }}" disabled
+                       class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 cursor-not-allowed uppercase font-mono text-xs">
+            </div>
+
+            <div class="pt-4 border-t border-slate-200 flex justify-end">
+                <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

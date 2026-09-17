@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Explore Student Rooms & PGs across India - RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Hero Filter Header -->
+    <div class="bg-gradient-to-r from-indigo-900 to-slate-900 rounded-2xl p-6 sm:p-10 text-white shadow-md mb-8">
+        <h1 class="text-2xl sm:text-4xl font-black tracking-tight">Find Verified Student Rooms & PGs</h1>
+        <p class="text-indigo-200 text-sm sm:text-base mt-2 max-w-2xl">
+            Explore monthly rental rooms near top universities, colleges, and coaching hubs across India with verified house rules.
+        </p>
+
+        <!-- Search & Filter Form -->
+        <form method="GET" action="{{ url_for('properties_bp.browse') }}" class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div>
+                <label class="block text-xs font-bold text-indigo-200 uppercase mb-1">City</label>
+                <input type="text" name="city" value="{{ filters.city }}" placeholder="e.g. Kota, Pune, Delhi"
+                       class="w-full px-3.5 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-indigo-300 text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-indigo-200 uppercase mb-1">Locality</label>
+                <input type="text" name="locality" value="{{ filters.locality }}" placeholder="e.g. Kothrud, Vigyan Nagar"
+                       class="w-full px-3.5 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-indigo-300 text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-indigo-200 uppercase mb-1">Room Sharing</label>
+                <select name="room_type" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-white/20 text-white text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition">
+                    <option value="">All Room Types</option>
+                    <option value="SINGLE" {% if filters.room_type == 'SINGLE' %}selected{% endif %}>Single Occupancy</option>
+                    <option value="DOUBLE_SHARING" {% if filters.room_type == 'DOUBLE_SHARING' %}selected{% endif %}>Double Sharing</option>
+                    <option value="TRIPLE_SHARING" {% if filters.room_type == 'TRIPLE_SHARING' %}selected{% endif %}>Triple Sharing</option>
+                    <option value="FOUR_SHARING" {% if filters.room_type == 'FOUR_SHARING' %}selected{% endif %}>Four Sharing</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-indigo-200 uppercase mb-1">Max Monthly Rent</label>
+                <input type="number" name="max_rent" value="{{ filters.max_rent }}" placeholder="e.g. 10000"
+                       class="w-full px-3.5 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-indigo-300 text-sm focus:outline-none focus:bg-white focus:text-slate-900 transition">
+            </div>
+
+            <div class="flex items-end">
+                <button type="submit" class="w-full py-2.5 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-lg text-sm transition shadow-sm">
+                    Search Rooms
+                </button>
+            </div>
+
+            <!-- Checkbox Amenities Quick Filters -->
+            <div class="lg:col-span-5 flex flex-wrap gap-4 pt-2 text-xs font-medium text-indigo-100">
+                <label class="inline-flex items-center space-x-1.5 cursor-pointer">
+                    <input type="checkbox" name="has_wifi" value="1" {% if filters.has_wifi %}checked{% endif %} class="rounded text-indigo-600">
+                    <span>Wi-Fi Included</span>
+                </label>
+                <label class="inline-flex items-center space-x-1.5 cursor-pointer">
+                    <input type="checkbox" name="has_ac" value="1" {% if filters.has_ac %}checked{% endif %} class="rounded text-indigo-600">
+                    <span>Air Conditioned (AC)</span>
+                </label>
+                <label class="inline-flex items-center space-x-1.5 cursor-pointer">
+                    <input type="checkbox" name="has_attached_bathroom" value="1" {% if filters.has_attached_bathroom %}checked{% endif %} class="rounded text-indigo-600">
+                    <span>Attached Washroom</span>
+                </label>
+                <a href="{{ url_for('properties_bp.browse') }}" class="text-indigo-300 hover:underline ml-auto">Reset Filters</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Listings Grid -->
+    <div>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-slate-900">
+                Available Student Rooms ({{ rooms|length }})
+            </h2>
+            <a href="{{ url_for('student_bp.nearby_rooms') }}" class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:underline">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                </svg>
+                Switch to Map View
+            </a>
+        </div>
+
+        {% if rooms %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {% for room in rooms %}
+                    {% include "partials/room_card.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-20 bg-white border border-slate-200 rounded-xl">
+                <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <h3 class="text-base font-bold text-slate-800">No rooms match your search</h3>
+                <p class="text-sm text-slate-500 mt-1 mb-4">Try clearing filters or searching for another city/locality.</p>
+                <a href="{{ url_for('properties_bp.browse') }}" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg text-sm hover:bg-indigo-700 transition">
+                    View All Rooms
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}{{ room.room_name }} - {{ property.title }} | RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex text-xs font-semibold text-slate-500 mb-4 space-x-2">
+        <a href="{{ url_for('properties_bp.browse') }}" class="hover:text-indigo-600">Properties</a>
+        <span>/</span>
+        <a href="{{ url_for('properties_bp.property_detail', property_id=property.id) }}" class="hover:text-indigo-600">{{ property.title }}</a>
+        <span>/</span>
+        <span class="text-slate-900">{{ room.room_name }}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Room Details & Media -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Header Card -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">
+                                {{ room.room_type|replace('_', ' ')|title }}
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                                Available for Tenancy
+                            </span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">{{ room.room_name }}</h1>
+                        <p class="text-xs text-slate-500 mt-1">Located in: <a href="{{ url_for('properties_bp.property_detail', property_id=property.id) }}" class="text-indigo-600 font-semibold hover:underline">{{ property.title }}</a></p>
+                    </div>
+
+                    <div class="text-right">
+                        <span class="text-3xl font-black text-slate-900">₹{{ "{:,.0f}".format(room.monthly_rent) }}</span>
+                        <span class="text-xs text-slate-500 block">/ month</span>
+                    </div>
+                </div>
+
+                <!-- Financial Terms Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 text-center">
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="text-xs text-slate-500 uppercase block font-semibold">Security Deposit</span>
+                        <span class="text-sm font-bold text-slate-900 mt-0.5">₹{{ "{:,.0f}".format(room.security_deposit) }}</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="text-xs text-slate-500 uppercase block font-semibold">Advance Rent</span>
+                        <span class="text-sm font-bold text-slate-900 mt-0.5">₹{{ "{:,.0f}".format(room.advance_rent) }}</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="text-xs text-slate-500 uppercase block font-semibold">Electricity</span>
+                        <span class="text-xs font-bold text-slate-900 mt-0.5">{{ room.electricity_policy|replace('_', ' ')|title }}</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="text-xs text-slate-500 uppercase block font-semibold">Water Charges</span>
+                        <span class="text-xs font-bold text-slate-900 mt-0.5">{{ room.water_policy|replace('_', ' ')|title }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Images Gallery -->
+            {% if room.room_images %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for img in room.room_images %}
+                        <div class="h-64 bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
+                            <img src="https://your-project-id.supabase.co/storage/v1/object/public/property-media/{{ img.storage_path }}" 
+                                 alt="{{ room.room_name }}" 
+                                 class="w-full h-full object-cover hover:scale-105 transition duration-300"
+                                 onerror="this.src='https://placehold.co/800x600/e2e8f0/475569?text=Room+Interior'">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Room Amenities Matrix -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-base font-bold text-slate-900 mb-4 border-b border-slate-100 pb-2">Room Amenities & Features</h2>
+                {% set a = room.amenities %}
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                    <div class="flex items-center space-x-2">
+                        <span class="{% if a.has_wifi %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ Wi-Fi</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="{% if a.has_attached_bathroom %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ Attached Washroom</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="{% if a.has_ac %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ Air Conditioner (AC)</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="{% if a.has_cooler %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ Air Cooler</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="{% if a.has_bed %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ Bed Provided</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="{% if a.has_study_table %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ Study Table & Chair</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="{% if a.has_cupboard %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ Wardrobe / Almirah</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="{% if a.has_ro_water %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ RO Drinking Water</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="{% if a.has_power_backup %}text-emerald-600 font-bold{% else %}text-slate-300 line-through{% endif %}">✓ Power Backup</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Contact Landlord & Inquiries -->
+        <div class="space-y-6">
+            <!-- Direct Inquiry Form -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-base font-bold text-slate-900 mb-2">Send Inquiry to Owner</h2>
+                <p class="text-xs text-slate-500 mb-4">Connect directly with the property owner for visit scheduling.</p>
+
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'STUDENT' %}
+                        <form method="POST" action="{{ url_for('inquiries_bp.submit', room_id=room.id) }}" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Target Move-in Date</label>
+                                <input type="date" name="move_in_date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Message to Owner</label>
+                                <textarea name="message" rows="3" required placeholder="Hi, I am interested in visiting this room. Is it available for immediate tenancy?"
+                                          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none"></textarea>
+                            </div>
+                            <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs transition shadow-sm">
+                                Send Accommodation Inquiry
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="p-3 bg-slate-50 rounded-lg text-xs text-slate-600">
+                            Logged in as <strong>{{ current_user.role }}</strong>. Only student accounts can submit inquiries.
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center p-4 bg-slate-50 rounded-lg border border-slate-200">
+                        <p class="text-xs text-slate-600 mb-3">Please sign in as a student to contact the landlord.</p>
+                        <a href="{{ url_for('auth_bp.login') }}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs transition inline-block">
+                            Sign In to Inquire
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- Save to Favorites Button -->
+                {% if current_user.is_authenticated and current_user.role == 'STUDENT' %}
+                    <div class="mt-4 pt-4 border-t border-slate-100">
+                        <form method="POST" action="{{ url_for('favorites_bp.toggle', room_id=room.id) }}">
+                            <button type="submit" class="w-full py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4 text-red-500 fill-current" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                                </svg>
+                                Bookmark to Saved Rooms
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

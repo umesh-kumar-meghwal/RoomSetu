@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Property Moderation - RoomSetu Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl font-black text-slate-900">Property Moderation</h1>
+        <p class="text-sm text-slate-500 mt-1">Manage, suspend, or reactivate listings across India</p>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+                <thead class="bg-slate-50 text-xs font-bold uppercase text-slate-500">
+                    <tr>
+                        <th class="px-6 py-3">Property Title</th>
+                        <th class="px-6 py-3">City & Locality</th>
+                        <th class="px-6 py-3">Owner</th>
+                        <th class="px-6 py-3">Status</th>
+                        <th class="px-6 py-3 text-right">Moderation Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for prop in properties %}
+                        <tr class="hover:bg-slate-50/50">
+                            <td class="px-6 py-4 font-bold text-slate-900">
+                                {{ prop.title }}
+                                <span class="text-xs font-normal text-slate-500 block">{{ prop.property_type }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-xs text-slate-600">
+                                {{ prop.locality }}, {{ prop.city }}
+                            </td>
+                            <td class="px-6 py-4 text-xs text-slate-600">
+                                {{ prop.owner.full_name if prop.owner else 'Unknown' }}<br>
+                                <span class="text-slate-400">{{ prop.owner.email if prop.owner else '' }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold
+                                    {% if prop.publishing_status == 'PUBLISHED' %} bg-emerald-100 text-emerald-800
+                                    {% elif prop.publishing_status == 'SUSPENDED' %} bg-red-100 text-red-800
+                                    {% else %} bg-slate-100 text-slate-700 {% endif %}">
+                                    {{ prop.publishing_status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <form method="POST" action="{{ url_for('admin_bp.set_property_status', property_id=prop.id) }}" class="inline-flex gap-2">
+                                    {% if prop.publishing_status == 'PUBLISHED' %}
+                                        <button type="submit" name="status" value="SUSPENDED" class="px-3 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded text-xs font-bold transition">
+                                            Suspend
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" name="status" value="PUBLISHED" class="px-3 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded text-xs font-bold transition">
+                                            Publish
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-slate-400">No properties on record.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

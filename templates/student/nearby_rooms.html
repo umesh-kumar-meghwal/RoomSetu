@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Find Nearby Student Rooms - RoomSetu{% endblock %}
+
+{% block head %}
+<!-- Custom Leaflet Styles for Map Container -->
+<style>
+    #leaflet-map {
+        height: 100%;
+        min-height: 480px;
+        width: 100%;
+        border-radius: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Nearby Rooms Radar</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">Discover vacant rooms and PGs within walking or commuting distance</p>
+        </div>
+
+        <div>
+            <button id="btn-locate-me" type="button" 
+                    class="w-full sm:w-auto px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm shadow-sm transition flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Use My Current Location
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <form id="map-filter-form" class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Search Radius</label>
+            <select id="radius-select" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none">
+                <option value="1.0">Within 1 km (Walking distance)</option>
+                <option value="3.0">Within 3 km</option>
+                <option value="5.0" selected>Within 5 km (Standard)</option>
+                <option value="10.0">Within 10 km (Commuter)</option>
+                <option value="25.0">Within 25 km (Regional)</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Room Sharing</label>
+            <select id="filter-room-type" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none">
+                <option value="">Any Room Type</option>
+                <option value="SINGLE">Single Occupancy</option>
+                <option value="DOUBLE_SHARING">Double Sharing</option>
+                <option value="TRIPLE_SHARING">Triple Sharing</option>
+                <option value="FOUR_SHARING">Four Sharing</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Max Budget (₹/mo)</label>
+            <input type="number" id="filter-max-rent" placeholder="e.g. 8000"
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none">
+        </div>
+
+        <div class="flex items-end">
+            <button type="submit" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-xs transition">
+                Apply Filters
+            </button>
+        </div>
+    </form>
+
+    <!-- Notification / Status Banner -->
+    <div id="map-status-banner" class="hidden"></div>
+
+    <!-- Responsive Split View: Map (Left) & Results List (Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <!-- Interactive Leaflet Map -->
+        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-2 shadow-sm h-[520px]">
+            <div id="leaflet-map"></div>
+        </div>
+
+        <!-- Scrollable List of Matched Rooms -->
+        <div class="h-[520px] flex flex-col">
+            <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center justify-between">
+                <span>Rooms in Selected Radius</span>
+            </h3>
+            <div id="rooms-results-container" class="flex-grow overflow-y-auto space-y-3 pr-1">
+                <div class="text-center py-16 bg-white border border-slate-200 rounded-xl p-6">
+                    <svg class="w-10 h-10 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    </svg>
+                    <p class="text-xs font-semibold text-slate-600">No location detected</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Click "Use My Current Location" above to find rooms near you.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+{% endblock %}

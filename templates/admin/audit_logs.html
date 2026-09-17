@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Security Audit Trail - RoomSetu Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl font-black text-slate-900">Security Audit Logs</h1>
+        <p class="text-sm text-slate-500 mt-1">Chronological, tamper-evident records of all administrative actions</p>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-left text-sm font-mono">
+                <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+                    <tr>
+                        <th class="px-6 py-3">Timestamp</th>
+                        <th class="px-6 py-3">Actor</th>
+                        <th class="px-6 py-3">Action</th>
+                        <th class="px-6 py-3">Entity Type</th>
+                        <th class="px-6 py-3">IP Address</th>
+                        <th class="px-6 py-3">Metadata</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs">
+                    {% for log in logs %}
+                        <tr class="hover:bg-slate-50/50">
+                            <td class="px-6 py-3 text-slate-500 whitespace-nowrap">{{ log.created_at[:19] }}</td>
+                            <td class="px-6 py-3 text-slate-900">{{ log.actor.full_name if log.actor else 'System' }}</td>
+                            <td class="px-6 py-3 font-bold text-indigo-600">{{ log.action }}</td>
+                            <td class="px-6 py-3 text-slate-600">{{ log.entity_type }}</td>
+                            <td class="px-6 py-3 text-slate-500">{{ log.ip_address or '0.0.0.0' }}</td>
+                            <td class="px-6 py-3 text-slate-600 max-w-xs truncate">{{ log.metadata }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-slate-400 font-sans">No audit events recorded yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

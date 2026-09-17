@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Add Property - RoomSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-6">
+        <h1 class="text-2xl font-black text-slate-900">Add New Property</h1>
+        <p class="text-sm text-slate-500 mt-1">Configure property address, GPS location, and rental policies</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('landlord_bp.add_property') }}" enctype="multipart/form-data" class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm space-y-6">
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">1. General Information</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Property Title</label>
+                    <input type="text" name="title" required placeholder="e.g. Krishna Residency Student PG"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Property Type</label>
+                    <select name="property_type" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                        <option value="PG">Paying Guest (PG)</option>
+                        <option value="FLAT">Flat / Apartment</option>
+                        <option value="HOUSE">Independent House</option>
+                        <option value="HOSTEL">Student Hostel</option>
+                        <option value="ROOM">Single Room Unit</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4">
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Description</label>
+                <textarea name="description" rows="3" required placeholder="Describe proximity to metro, colleges, markets, etc."
+                          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500"></textarea>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">2. Location & Coordinates</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Address Line</label>
+                    <input type="text" name="address_line" required placeholder="Plot 42, Knowledge Park III"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Locality / Area</label>
+                        <input type="text" name="locality" required placeholder="Knowledge Park"
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">City</label>
+                        <input type="text" name="city" required placeholder="Greater Noida"
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pincode</label>
+                        <input type="text" name="pincode" required pattern="[1-9][0-9]{5}" placeholder="201306"
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">GPS Latitude</label>
+                        <input type="number" step="any" name="latitude" required placeholder="28.4744"
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">GPS Longitude</label>
+                        <input type="number" step="any" name="longitude" required placeholder="77.5040"
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400">Used to locate your property on student map searches.</p>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">3. Rental Policies & House Rules</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="is_24_hour_entry" class="rounded text-indigo-600"> <span>24-Hour Entry</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="allows_day_guests" checked class="rounded text-indigo-600"> <span>Allows Day Guests</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="allows_overnight_guests" class="rounded text-indigo-600"> <span>Allows Overnight Guests</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="allows_self_cooking" checked class="rounded text-indigo-600"> <span>Cooking Allowed</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="allows_non_veg" checked class="rounded text-indigo-600"> <span>Non-Veg Allowed</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="parking_available" checked class="rounded text-indigo-600"> <span>Parking Available</span></label>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Notice Period (Days)</label>
+                    <input type="number" name="notice_period_days" value="30" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Rent Due Date of Month</label>
+                    <input type="number" name="rent_due_day_of_month" value="5" min="1" max="31" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">4. Exterior / Property Photos</h2>
+            <input type="file" name="property_images" multiple accept="image/*"
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700">
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 flex justify-end">
+            <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition">
+                Create Property
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

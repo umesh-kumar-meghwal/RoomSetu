@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Landlord Verifications - RoomSetu Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900">Landlord Verification Triage</h1>
+            <p class="text-sm text-slate-500 mt-1">Review ownership documentation and grant publishing authorization</p>
+        </div>
+
+        <div class="mt-4 sm:mt-0 flex gap-2">
+            <a href="{{ url_for('admin_bp.landlords') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if not current_filter %} bg-indigo-600 text-white {% else %} bg-white border text-slate-700 {% endif %}">All</a>
+            <a href="{{ url_for('admin_bp.landlords', status='PENDING_REVIEW') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if current_filter == 'PENDING_REVIEW' %} bg-amber-600 text-white {% else %} bg-white border text-slate-700 {% endif %}">Pending</a>
+            <a href="{{ url_for('admin_bp.landlords', status='APPROVED') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if current_filter == 'APPROVED' %} bg-emerald-600 text-white {% else %} bg-white border text-slate-700 {% endif %}">Approved</a>
+        </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+                <thead class="bg-slate-50 text-xs font-bold uppercase text-slate-500">
+                    <tr>
+                        <th class="px-6 py-3">Landlord Name</th>
+                        <th class="px-6 py-3">Contact</th>
+                        <th class="px-6 py-3">Document Type</th>
+                        <th class="px-6 py-3">Status</th>
+                        <th class="px-6 py-3">Submission Date</th>
+                        <th class="px-6 py-3 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for item in verifications %}
+                        <tr class="hover:bg-slate-50/50">
+                            <td class="px-6 py-4 font-bold text-slate-900">
+                                {{ item.profiles.full_name if item.profiles else 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 text-xs text-slate-600">
+                                {{ item.profiles.email if item.profiles else '' }}<br>
+                                {{ item.profiles.phone or 'No phone' }}
+                            </td>
+                            <td class="px-6 py-4 text-xs font-mono text-slate-700">
+                                {{ item.identity_document_type or 'Not uploaded' }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold
+                                    {% if item.verification_status == 'APPROVED' %} bg-emerald-100 text-emerald-800
+                                    {% elif item.verification_status == 'PENDING_REVIEW' %} bg-amber-100 text-amber-800
+                                    {% elif item.verification_status == 'REJECTED' %} bg-red-100 text-red-800
+                                    {% else %} bg-slate-100 text-slate-700 {% endif %}">
+                                    {{ item.verification_status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-xs text-slate-500">
+                                {{ item.submitted_at[:10] if item.submitted_at else 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="{{ url_for('admin_bp.landlord_detail', verification_id=item.id) }}" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-semibold rounded-lg text-xs transition">
+                                    Inspect & Review
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-slate-400">No landlord verification records found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

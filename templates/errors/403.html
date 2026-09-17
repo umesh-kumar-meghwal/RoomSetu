@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}403 Forbidden - RoomSetu{% endblock %}
+{% block content %}
+<div class="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+    <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m4-11a4 4 0 00-8 0v4h8V6zM5 10h14a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7a2 2 0 012-2z"/>
+        </svg>
+    </div>
+    <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Access Forbidden</h1>
+    <p class="text-slate-600 max-w-md mb-6">You do not have the required permissions to view this resource. Make sure you are logged in with the appropriate account.</p>
+    <a href="{{ url_for('properties_bp.browse') }}" class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">Return to Home</a>
+</div>
+{% endblock %}
