@@ -17,13 +17,8 @@ properties_bp = Blueprint("properties_bp", __name__, url_prefix="/properties")
 @properties_bp.route("/")
 @properties_bp.route("/browse")
 def browse():
-    """
-    Search and filter public room listings across India.
-    Only returns AVAILABLE rooms from PUBLISHED properties.
-    """
     service = get_service_client()
 
-    # Query Parameters
     city = request.args.get("city", "").strip()
     locality = request.args.get("locality", "").strip()
     room_type = request.args.get("room_type", "").strip()
@@ -33,7 +28,6 @@ def browse():
     has_attached_bathroom = request.args.get("has_attached_bathroom") == "1"
 
     try:
-        # Base query joining room details, property details, and images
         query = service.table("rooms").select(
             "id, room_name, room_type, monthly_rent, security_deposit, availability_status, "
             "properties!inner(id, title, property_type, address_line, locality, city, state, publishing_status), "
@@ -41,7 +35,6 @@ def browse():
             "room_images(storage_path, is_primary)"
         ).eq("availability_status", "AVAILABLE").eq("properties.publishing_status", "PUBLISHED")
 
-        # Apply Filters
         if city:
             query = query.ilike("properties.city", f"%{city}%")
         if locality:
@@ -65,13 +58,24 @@ def browse():
         res = query.order("monthly_rent", desc=False).limit(40).execute()
         rooms = res.data or []
 
+        # ================= NAYA: Recent 10 Verified Student Reviews Fetch Karein =================
+        reviews_res = service.table("reviews").select(
+            "id, rating, comment, created_at, "
+            "student:profiles!reviews_student_id_fkey(full_name), "
+            "property:properties!reviews_property_id_fkey(title, city, locality)"
+        ).order("created_at", desc=True).limit(10).execute()
+
+        public_reviews = reviews_res.data or []
+
     except Exception as exc:
         logger.error(f"Error querying properties/browse: {exc}")
         rooms = []
+        public_reviews = []
 
     return render_template(
         "properties/listing.html",
         rooms=rooms,
+        public_reviews=public_reviews,  # <-- Passed to Template
         filters={
             "city": city,
             "locality": locality,
@@ -82,8 +86,6 @@ def browse():
             "has_attached_bathroom": has_attached_bathroom
         }
     )
-
-
 @properties_bp.route("/<property_id>")
 def property_detail(property_id: str):
     service = get_service_client()
