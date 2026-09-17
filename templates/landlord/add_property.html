@@ -1,25 +1,43 @@
 {% extends "base.html" %}
 {% block title %}Add Property - RoomSetu{% endblock %}
 
+{% block head %}
+<!-- Leaflet CSS for Picker Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+    #property-picker-map {
+        height: 380px;
+        width: 100%;
+        border-radius: 0.75rem;
+        z-index: 10;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="mb-6">
-        <h1 class="text-2xl font-black text-slate-900">Add New Property</h1>
-        <p class="text-sm text-slate-500 mt-1">Configure property address, GPS location, and rental policies</p>
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <a href="{{ url_for('landlord_bp.properties') }}" class="text-xs font-semibold text-indigo-600 hover:underline">← Back to Properties</a>
+            <h1 class="text-2xl font-black text-slate-900 mt-1">Add New Property</h1>
+            <p class="text-sm text-slate-500">Pick location on map, set house rules, and publish your student home</p>
+        </div>
     </div>
 
-    <form method="POST" action="{{ url_for('landlord_bp.add_property') }}" enctype="multipart/form-data" class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm space-y-6">
+    <form method="POST" action="{{ url_for('landlord_bp.add_property') }}" enctype="multipart/form-data" class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm space-y-8">
+        
+        <!-- 1. GENERAL INFORMATION -->
         <div>
             <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">1. General Information</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Property Title</label>
                     <input type="text" name="title" required placeholder="e.g. Krishna Residency Student PG"
-                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500">
+                           class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Property Type</label>
-                    <select name="property_type" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    <select name="property_type" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                         <option value="PG">Paying Guest (PG)</option>
                         <option value="FLAT">Flat / Apartment</option>
                         <option value="HOUSE">Independent House</option>
@@ -30,85 +48,287 @@
             </div>
             <div class="mt-4">
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Description</label>
-                <textarea name="description" rows="3" required placeholder="Describe proximity to metro, colleges, markets, etc."
-                          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500"></textarea>
+                <textarea name="description" rows="3" required placeholder="Colleges, metro stations, coaching centers aur markets se doori explain karein..."
+                          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
             </div>
         </div>
 
+        <!-- 2. LOCATION & INTERACTIVE MAP PICKER -->
         <div>
-            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">2. Location & Coordinates</h2>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-2 mb-3">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900">2. Pin Exact Location on Map</h2>
+                    <p class="text-xs text-slate-500">Map par click karein ya marker ko drag karein.</p>
+                </div>
+                
+                <!-- Current Location Auto-Detect Button -->
+                <button type="button" id="btn-detect-gps"
+                        class="inline-flex items-center justify-center px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold rounded-lg shadow-sm transition">
+                    <svg class="w-4 h-4 mr-1.5 animate-pulse text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Use My Current Location
+                </button>
+            </div>
+
+            <!-- Notification banner for GPS detector -->
+            <div id="gps-status-banner" class="hidden text-xs p-2.5 rounded-lg mb-3 font-semibold"></div>
+
+            <!-- Interactive Map Container -->
+            <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm mb-4">
+                <div id="property-picker-map"></div>
+            </div>
+
+            <!-- Coordinate Values (Auto-filled by Map Picker) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">GPS Latitude (Auto-detected)</label>
+                    <input type="number" step="any" id="input-lat" name="latitude" required readonly
+                           class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-mono font-bold text-indigo-700 cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">GPS Longitude (Auto-detected)</label>
+                    <input type="number" step="any" id="input-lon" name="longitude" required readonly
+                           class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-mono font-bold text-indigo-700 cursor-not-allowed">
+                </div>
+            </div>
+
+            <!-- Address Fields -->
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Address Line</label>
-                    <input type="text" name="address_line" required placeholder="Plot 42, Knowledge Park III"
-                           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    <input type="text" id="input-address" name="address_line" required placeholder="House/Flat No., Building Name, Street"
+                           class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Locality / Area</label>
-                        <input type="text" name="locality" required placeholder="Knowledge Park"
-                               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                        <input type="text" id="input-locality" name="locality" required placeholder="e.g. Dadabari / Kothrud"
+                               class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">City</label>
-                        <input type="text" name="city" required placeholder="Greater Noida"
-                               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                        <input type="text" id="input-city" name="city" required placeholder="e.g. Kota / Pune"
+                               class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pincode</label>
-                        <input type="text" name="pincode" required pattern="[1-9][0-9]{5}" placeholder="201306"
-                               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">State</label>
+                        <input type="text" id="input-state" name="state" required placeholder="e.g. Rajasthan"
+                               class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">GPS Latitude</label>
-                        <input type="number" step="any" name="latitude" required placeholder="28.4744"
-                               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">GPS Longitude</label>
-                        <input type="number" step="any" name="longitude" required placeholder="77.5040"
-                               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
-                    </div>
+
+                <div class="w-full sm:w-1/3">
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pincode (6 Digits)</label>
+                    <input type="text" id="input-pincode" name="pincode" required pattern="[1-9][0-9]{5}" placeholder="324009"
+                           class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
-                <p class="text-xs text-slate-400">Used to locate your property on student map searches.</p>
             </div>
         </div>
 
+        <!-- 3. RENTAL POLICIES & RULES -->
         <div>
             <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">3. Rental Policies & House Rules</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="is_24_hour_entry" class="rounded text-indigo-600"> <span>24-Hour Entry</span></label>
-                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="allows_day_guests" checked class="rounded text-indigo-600"> <span>Allows Day Guests</span></label>
-                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="allows_overnight_guests" class="rounded text-indigo-600"> <span>Allows Overnight Guests</span></label>
-                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="allows_self_cooking" checked class="rounded text-indigo-600"> <span>Cooking Allowed</span></label>
-                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="allows_non_veg" checked class="rounded text-indigo-600"> <span>Non-Veg Allowed</span></label>
-                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700"><input type="checkbox" name="parking_available" checked class="rounded text-indigo-600"> <span>Parking Available</span></label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                    <input type="checkbox" name="is_24_hour_entry" class="rounded text-indigo-600 focus:ring-indigo-500"> <span>24-Hour Entry Allowed</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                    <input type="checkbox" name="allows_day_guests" checked class="rounded text-indigo-600 focus:ring-indigo-500"> <span>Allows Day Guests</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                    <input type="checkbox" name="allows_overnight_guests" class="rounded text-indigo-600 focus:ring-indigo-500"> <span>Allows Overnight Guests</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                    <input type="checkbox" name="allows_self_cooking" checked class="rounded text-indigo-600 focus:ring-indigo-500"> <span>Cooking Allowed</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                    <input type="checkbox" name="allows_non_veg" checked class="rounded text-indigo-600 focus:ring-indigo-500"> <span>Non-Veg Allowed</span>
+                </label>
+                <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                    <input type="checkbox" name="parking_available" checked class="rounded text-indigo-600 focus:ring-indigo-500"> <span>Parking Available</span>
+                </label>
             </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Notice Period (Days)</label>
-                    <input type="number" name="notice_period_days" value="30" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    <input type="number" name="notice_period_days" value="30" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Rent Due Date of Month</label>
-                    <input type="number" name="rent_due_day_of_month" value="5" min="1" max="31" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900">
+                    <input type="number" name="rent_due_day_of_month" value="5" min="1" max="31" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
             </div>
         </div>
 
+        <!-- 4. PROPERTY EXTERIOR PHOTOS -->
         <div>
-            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">4. Exterior / Property Photos</h2>
+            <h2 class="text-base font-bold text-slate-900 mb-3 border-b border-slate-100 pb-2">4. Exterior / Building Photos</h2>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Upload Main Building or Front Photos</label>
             <input type="file" name="property_images" multiple accept="image/*"
-                   class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700">
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
         </div>
 
-        <div class="pt-4 border-t border-slate-200 flex justify-end">
-            <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition">
-                Create Property
+        <div class="pt-4 border-t border-slate-200 flex justify-end gap-3">
+            <a href="{{ url_for('landlord_bp.properties') }}" class="px-5 py-2.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+                Cancel
+            </a>
+            <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm shadow-sm transition">
+                Create Property & Add Rooms →
             </button>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Leaflet JS CDN -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const latInput = document.getElementById("input-lat");
+    const lonInput = document.getElementById("input-lon");
+    const detectBtn = document.getElementById("btn-detect-gps");
+    const statusBanner = document.getElementById("gps-status-banner");
+
+    // Default Fallback: Kota, Rajasthan [25.18, 75.85] (Famous Indian Student Hub)
+    const defaultLat = 25.1800;
+    const defaultLon = 75.8500;
+
+    // Set initial values
+    latInput.value = defaultLat.toFixed(6);
+    lonInput.value = defaultLon.toFixed(6);
+
+    // Initialize Leaflet Map
+    const map = L.map("property-picker-map").setView([defaultLat, defaultLon], 13);
+
+    // OpenStreetMap Tile Layer
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Draggable Marker
+    let marker = L.marker([defaultLat, defaultLon], {
+        draggable: true,
+        autoPan: true
+    }).addTo(map);
+
+    marker.bindPopup("<b>Selected Property Location</b><br>Pin ko drag karein ya map par click karein.").openPopup();
+
+    // Helper: Update coordinates in inputs and popup
+    function updateCoordinates(lat, lon, zoomTo = false) {
+        latInput.value = Number(lat).toFixed(6);
+        lonInput.value = Number(lon).toFixed(6);
+        marker.setLatLng([lat, lon]);
+
+        if (zoomTo) {
+            map.setView([lat, lon], 16);
+        }
+        marker.bindPopup(`<b>Selected Location</b><br>Lat: ${Number(lat).toFixed(4)}, Lon: ${Number(lon).toFixed(4)}`).openPopup();
+        
+        // Reverse Geocode (Address details auto-fill attempt)
+        reverseGeocodeAddress(lat, lon);
+    }
+
+    // Event 1: Marker drag hone ke baad
+    marker.on("dragend", (e) => {
+        const position = marker.getLatLng();
+        updateCoordinates(position.lat, position.lng);
+    });
+
+    // Event 2: Map par kahin bhi click karne par
+    map.on("click", (e) => {
+        updateCoordinates(e.latlng.lat, e.latlng.lng);
+    });
+
+    // Event 3: Current GPS Location Button Click
+    detectBtn.addEventListener("click", () => {
+        if (!navigator.geolocation) {
+            showBanner("Aapke browser mein Geolocation support nahi hai.", "danger");
+            return;
+        }
+
+        detectBtn.disabled = true;
+        detectBtn.innerHTML = `
+            <svg class="animate-spin w-4 h-4 mr-1.5 text-indigo-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            Locating You...
+        `;
+        showBanner("Current GPS location detect ho rahi hai...", "info");
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userLat = position.coords.latitude;
+                const userLon = position.coords.longitude;
+
+                updateCoordinates(userLat, userLon, true);
+
+                detectBtn.disabled = false;
+                detectBtn.innerHTML = `✓ Location Detected`;
+                showBanner("Location successfully select ho gayi hai!", "success");
+            },
+            (error) => {
+                detectBtn.disabled = false;
+                detectBtn.innerHTML = `Use My Current Location`;
+
+                let errorMsg = "GPS access fail ho gaya.";
+                if (error.code === error.PERMISSION_DENIED) {
+                    errorMsg = "Browser ne location permission block kar di hai. Please allow location permission in browser.";
+                }
+                showBanner(errorMsg, "danger");
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    });
+
+    // Free OpenStreetMap Nominatim Reverse Geocoding (Auto-fills City/Locality/State)
+    async function reverseGeocodeAddress(lat, lon) {
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {
+                headers: { "Accept-Language": "en" }
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            const addr = data.address || {};
+
+            const localityInput = document.getElementById("input-locality");
+            const cityInput = document.getElementById("input-city");
+            const stateInput = document.getElementById("input-state");
+            const pincodeInput = document.getElementById("input-pincode");
+
+            if (localityInput && !localityInput.value) {
+                localityInput.value = addr.suburb || addr.neighbourhood || addr.residential || "";
+            }
+            if (cityInput && !cityInput.value) {
+                cityInput.value = addr.city || addr.town || addr.county || "";
+            }
+            if (stateInput && !stateInput.value) {
+                stateInput.value = addr.state || "";
+            }
+            if (pincodeInput && !pincodeInput.value && addr.postcode) {
+                pincodeInput.value = addr.postcode.replace(/\D/g, "").slice(0, 6);
+            }
+        } catch (err) {
+            console.log("Reverse geocode skip:", err);
+        }
+    }
+
+    function showBanner(msg, type) {
+        statusBanner.className = `text-xs p-2.5 rounded-lg mb-3 font-semibold ${
+            type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+            type === 'danger' ? 'bg-red-50 text-red-800 border border-red-200' :
+            'bg-indigo-50 text-indigo-800 border border-indigo-200'
+        }`;
+        statusBanner.innerText = msg;
+        statusBanner.classList.remove("hidden");
+    }
+});
+</script>
 {% endblock %}
