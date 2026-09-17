@@ -3,7 +3,10 @@ routes/properties.py
 Public endpoints for searching and viewing student rooms and properties.
 """
 import logging
-from flask import Blueprint, render_template, request, abort
+from flask import Blueprint, render_template, request, abort, redirect, url_for, flash, session
+from middleware.auth_guard import login_required
+from middleware.role_guard import role_required
+from utils.validators import sanitize_string
 from services.supabase_client import get_service_client
 
 logger = logging.getLogger(__name__)
@@ -83,10 +86,6 @@ def browse():
 
 @properties_bp.route("/<property_id>")
 def property_detail(property_id: str):
-    """
-    Renders comprehensive details for a property, including
-    rental policies, exterior images, and all associated rooms.
-    """
     service = get_service_client()
 
     try:
@@ -101,11 +100,9 @@ def property_detail(property_id: str):
 
         property_data = res.data[0]
 
-        # Enforce publication visibility
         if property_data.get("publishing_status") != "PUBLISHED":
             abort(404)
 
-        # Filter only AVAILABLE rooms for public view
         available_rooms = [
             r for r in property_data.get("rooms", [])
             if r.get("availability_status") == "AVAILABLE"
@@ -118,12 +115,78 @@ def property_detail(property_id: str):
         elif not isinstance(policies, dict):
             property_data["rental_policies"] = {}
 
-        return render_template("properties/detail.html", property=property_data)
+        # NAYA: Reviews aur Student profiles fetch karein
+        reviews_res = service.table("reviews").select(
+            "id, rating, comment, created_at, student:profiles!reviews_student_id_fkey(full_name, avatar_url)"
+        ).eq("property_id", property_id).order("created_at", desc=True).execute()
+
+        reviews = reviews_res.data or []
+        
+        # Calculate Average Rating
+        if reviews:
+            avg_rating = round(sum(r["rating"] for r in reviews) / len(reviews), 1)
+        else:
+            avg_rating = 0.0
+
+        return render_template(
+            "properties/detail.html", 
+            property=property_data, 
+            reviews=reviews, 
+            avg_rating=avg_rating,
+            total_reviews=len(reviews)
+        )
 
     except Exception as exc:
         logger.error(f"Error fetching property detail for {property_id}: {exc}")
         abort(404)
+        
+        
+@properties_bp.route("/<property_id>/reviews", methods=["POST"])
+@login_required
+@role_required("STUDENT")
+def add_review(property_id: str):
+    """Student feedback aur rating submit karta hai."""
+    student_id = session.get("user_id")
+    service = get_service_client()
 
+    try:
+        rating = int(request.form.get("rating", 5))
+        comment = sanitize_string(request.form.get("comment"))
+
+        if rating < 1 or rating > 5:
+            flash("Rating 1 se 5 stars ke beech honi chahiye.", "warning")
+            return redirect(url_for("properties_bp.property_detail", property_id=property_id))
+
+        if not comment or len(comment) < 5:
+            flash("Please feedback mein kam se kam 5 characters likhein.", "warning")
+            return redirect(url_for("properties_bp.property_detail", property_id=property_id))
+
+        # Check agar student ne pehle se review de rakha hai
+        existing = service.table("reviews").select("id").eq("property_id", property_id).eq("student_id", student_id).execute()
+
+        if existing.data:
+            # Update existing review
+            service.table("reviews").update({
+                "rating": rating,
+                "comment": comment,
+                "updated_at": "now()"
+            }).eq("id", existing.data[0]["id"]).execute()
+            flash("Aapka review update ho gaya hai!", "success")
+        else:
+            # Insert new review
+            service.table("reviews").insert({
+                "property_id": property_id,
+                "student_id": student_id,
+                "rating": rating,
+                "comment": comment
+            }).execute()
+            flash("Thank you! Aapka feedback submit ho gaya hai.", "success")
+
+    except Exception as exc:
+        logger.error(f"Error saving review: {exc}")
+        flash("Feedback save karne mein dikkat aayi. Please dubara try karein.", "danger")
+
+    return redirect(url_for("properties_bp.property_detail", property_id=property_id))
 
 @properties_bp.route("/rooms/<room_id>")
 def room_detail(room_id: str):
