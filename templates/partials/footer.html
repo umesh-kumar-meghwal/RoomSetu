@@ -1,6 +1,130 @@
-<footer class="bg-white border-t border-slate-200 mt-16 py-8 text-center text-sm text-slate-500">
-    <div class="max-w-7xl mx-auto px-4">
-        <p class="font-medium text-slate-700 mb-1">RoomSetu — All India Student Rental Platform</p>
-        <p class="text-xs text-slate-400">Secure PG, Flat & Hostel Discovery for Students</p>
+<footer class="bg-slate-900 text-slate-300 border-t border-slate-800 mt-20">
+    <!-- Top Value Proposition Bar -->
+    <div class="border-b border-slate-800/80 bg-slate-950/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left items-center">
+                <div class="flex items-center justify-center md:justify-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-lg flex-shrink-0 border border-indigo-500/20">
+                        🛡️
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">100% KYC Verified Owners</h4>
+                        <p class="text-xs text-slate-400">Electricity meter bills & tax receipts vetted</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-center md:justify-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-lg flex-shrink-0 border border-emerald-500/20">
+                        ⚡
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">Zero Brokerage Guarantee</h4>
+                        <p class="text-xs text-slate-400">Direct deal with property owners, ₹0 middleman fees</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-center md:justify-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-600/20 text-sky-400 flex items-center justify-center text-lg flex-shrink-0 border border-sky-500/20">
+                        📍
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">GPS Accurate Nearby Radar</h4>
+                        <p class="text-xs text-slate-400">Real-time distance from coaching or college</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Footer Links Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10">
+            
+            <!-- Col 1: Brand Info & Mission (Wider Column) -->
+            <div class="lg:col-span-2 space-y-4">
+                <a href="{{ url_for('properties_bp.browse') }}" class="flex items-center space-x-2.5">
+                    <span class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md">R</span>
+                    <span class="text-2xl font-black tracking-tight text-white">Room<span class="text-indigo-400">Setu</span></span>
+                </a>
+                <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
+                    RoomSetu is India's dedicated student rental discovery platform. We eliminate broker commissions and bring complete transparency in student housing with verified curfews, food policies, and live room availability.
+                </p>
+                <div class="pt-2">
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                        <span>🇮🇳</span> Proudly Built for Students Across India
+                    </span>
+                </div>
+            </div>
+
+            <!-- Col 2: For Students -->
+            <div>
+                <h4 class="text-xs font-black uppercase tracking-wider text-white mb-4">For Students</h4>
+                <ul class="space-y-2.5 text-xs text-slate-400">
+                    <li><a href="{{ url_for('properties_bp.browse') }}" class="hover:text-indigo-400 transition">Explore All Rooms</a></li>
+                    <li><a href="{{ url_for('student_bp.nearby_rooms') }}" class="hover:text-indigo-400 transition">Nearby Rooms Map Radar</a></li>
+                    <li><a href="{{ url_for('properties_bp.browse', room_type='SINGLE') }}" class="hover:text-indigo-400 transition">Single Occupancy Rooms</a></li>
+                    <li><a href="{{ url_for('properties_bp.browse', room_type='DOUBLE_SHARING') }}" class="hover:text-indigo-400 transition">Sharing PGs & Hostels</a></li>
+                    {% if current_user.is_authenticated and current_user.role == 'STUDENT' %}
+                        <li><a href="{{ url_for('student_bp.favorites') }}" class="hover:text-indigo-400 transition">Saved Rooms</a></li>
+                        <li><a href="{{ url_for('student_bp.inquiries') }}" class="hover:text-indigo-400 transition">My Inquiry History</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('auth_bp.register') }}" class="hover:text-indigo-400 transition">Create Student Account</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Col 3: For Landlords / Owners -->
+            <div>
+                <h4 class="text-xs font-black uppercase tracking-wider text-white mb-4">Property Owners</h4>
+                <ul class="space-y-2.5 text-xs text-slate-400">
+                    {% if current_user.is_authenticated and current_user.role == 'LANDLORD' %}
+                        <li><a href="{{ url_for('landlord_bp.dashboard') }}" class="hover:text-indigo-400 transition">Landlord Dashboard</a></li>
+                        <li><a href="{{ url_for('landlord_bp.add_property') }}" class="hover:text-indigo-400 transition">+ List New Property</a></li>
+                        <li><a href="{{ url_for('landlord_bp.properties') }}" class="hover:text-indigo-400 transition">Manage Rooms & Status</a></li>
+                        <li><a href="{{ url_for('landlord_bp.inquiries') }}" class="hover:text-indigo-400 transition">Student Inquiries Triage</a></li>
+                        <li><a href="{{ url_for('landlord_bp.verification_status') }}" class="hover:text-indigo-400 transition">KYC Document Status</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('auth_bp.register') }}" class="hover:text-indigo-400 transition">List Your Property Free</a></li>
+                        <li><a href="{{ url_for('auth_bp.login') }}" class="hover:text-indigo-400 transition">Owner Login</a></li>
+                        <li><a href="{{ url_for('auth_bp.register') }}" class="hover:text-indigo-400 transition">Zero Brokerage Benefits</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Col 4: Trust & Support -->
+            <div>
+                <h4 class="text-xs font-black uppercase tracking-wider text-white mb-4">Safety & Trust</h4>
+                <ul class="space-y-2.5 text-xs text-slate-400">
+                    <li><a href="{{ url_for('reports_bp.submit_report') }}" class="hover:text-red-400 transition text-red-400/90 font-medium">⚠️ Report Inaccurate Listing</a></li>
+                    <li><span class="text-slate-500">Privacy Policy (No Aadhaar Kept)</span></li>
+                    <li><span class="text-slate-500">House Rules Disclosures</span></li>
+                    <li><span class="text-slate-500">Security Deposit Protection</span></li>
+                    <li><span class="text-slate-500">Anti-Discrimination Guidelines</span></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- Top Educational Cities Quick Filter Tags -->
+        <div class="mt-12 pt-8 border-t border-slate-800">
+            <h5 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Popular Student Cities on RoomSetu</h5>
+            <div class="flex flex-wrap gap-2 text-xs">
+                <a href="{{ url_for('properties_bp.browse', city='Kota') }}" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-300 transition">Kota (Vigyan Nagar, Dadabari, Kunhari)</a>
+                <a href="{{ url_for('properties_bp.browse', city='Pune') }}" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-300 transition">Pune (Kothrud, Viman Nagar, Hinjewadi)</a>
+                <a href="{{ url_for('properties_bp.browse', city='Delhi') }}" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-300 transition">Delhi NCR (Kamla Nagar, Mukherjee Nagar, Greater Noida)</a>
+                <a href="{{ url_for('properties_bp.browse', city='Bengaluru') }}" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-300 transition">Bengaluru (Koramangala, HSR Layout, Electronic City)</a>
+                <a href="{{ url_for('properties_bp.browse', city='Dehradun') }}" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-300 transition">Dehradun (Bidholi, Kandoli, Rajpur Road)</a>
+                <a href="{{ url_for('properties_bp.browse', city='Jaipur') }}" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-300 transition">Jaipur (Malviya Nagar, Gopalpura Bypass)</a>
+                <a href="{{ url_for('properties_bp.browse', city='Indore') }}" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-300 transition">Indore (Bhawarkua, Vijay Nagar)</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Copyright & Disclaimer Bar -->
+    <div class="bg-slate-950 border-t border-slate-800 py-6 text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+            <p>© RoomSetu Technologies. All rights reserved. Connecting students with verified homes.</p>
+            <p class="text-[11px] text-slate-600">Built with Python Flask, Tailwind CSS & Supabase PostgreSQL</p>
+        </div>
     </div>
 </footer>
