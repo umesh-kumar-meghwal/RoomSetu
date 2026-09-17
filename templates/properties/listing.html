@@ -269,18 +269,18 @@
 
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
             {% set cities = [
-                {'name': 'Kota', 'tag': 'JEE & NEET Hub', 'icon': '📚'},
-                {'name': 'Pune', 'tag': 'Oxford of the East', 'icon': '🎓'},
-                {'name': 'Delhi', 'tag': 'DU & UPSC Hub', 'icon': '🏛️'},
-                {'name': 'Bengaluru', 'tag': 'Tech & Engineering', 'icon': '💻'},
-                {'name': 'Dehradun', 'tag': 'Colleges & Schools', 'icon': '⛰️'},
-                {'name': 'Jaipur', 'tag': 'University Hub', 'icon': '🏰'}
+                {'name': 'Kota', 'tag': 'JEE & NEET Hub', 'icon': 'https://www.tourism.rajasthan.gov.in/content/dam/rajasthan-tourism/english/city/explore/197.jpg'},
+                {'name': 'Pune', 'tag': 'Oxford of the East', 'icon': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBb5707lE2KzpTdZ8dUFL_536P68O-o1rSIX6-F5x4Tw&s=10'},
+                {'name': 'Delhi', 'tag': 'DU & UPSC Hub', 'icon': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWlIgX0dto6MhcIMg1G7WkKMq7e5SvTILvkHIsuv_EJA&s=10'},
+                {'name': 'Bengaluru', 'tag': 'Tech & Engineering', 'icon': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1Tpf7mJjkS7XM4g-Qa4SpZ74NUPirMcNX6nENQENRnBrBbBpH0XtctH2u&s=10'},
+                {'name': 'Dehradun', 'tag': 'Colleges & Schools', 'icon': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpCePuRmvDuo-mxkWeVEVGOlxA8tZCEP9O2izmoCBzZc4TDF-lKBtXH1Q&s=10'},
+                {'name': 'Jaipur', 'tag': 'University Hub', 'icon': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvlf5NXGVkVz0zRMr88AlOOSGOq8oeR_lMPEcwP1594w&s=10'}
             ] %}
 
             {% for c in cities %}
                 <a href="{{ url_for('properties_bp.browse', city=c.name) }}" 
                    class="bg-white border border-slate-200 rounded-2xl p-4 text-center hover:border-indigo-500 hover:shadow-md transition group block">
-                    <span class="text-2xl block mb-1 group-hover:scale-110 transition duration-200">{{ c.icon }}</span>
+                    <span class="text-2xl block mb-1 group-hover:scale-110 transition duration-200"><img src="{{ c.icon }}"></span>
                     <h4 class="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition">{{ c.name }}</h4>
                     <p class="text-[10px] text-slate-400 mt-0.5 truncate">{{ c.tag }}</p>
                 </a>
