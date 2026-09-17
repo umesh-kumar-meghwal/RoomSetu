@@ -4,6 +4,7 @@ Main entry point and application factory for RoomSetu.
 """
 from flask import Flask, render_template, session
 from config import Config
+from routes.pages import pages_bp
 
 # Blueprint imports
 from routes.auth import auth_bp
@@ -32,6 +33,7 @@ def create_app(config_class=Config) -> Flask:
     app.register_blueprint(favorites_bp)
     app.register_blueprint(reports_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(pages_bp)
 
     # Context Processor for Jinja2 Templates
     # Context Processor for Jinja2 Templates
