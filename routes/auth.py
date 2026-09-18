@@ -106,20 +106,56 @@ def verify_otp():
 
     return render_template("auth/verify_otp.html", email=email)
 
-
 @auth_bp.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     """Initiates a password recovery request."""
     if request.method == "POST":
         email = sanitize_string(request.form.get("email"))
         if not email:
-            flash("Please specify your registered email address.", "warning")
+            flash("Please enter your registered email address.", "warning")
         else:
-            success, msg = AuthService.initiate_password_reset(email)
-            flash(msg, "info")
-            return redirect(url_for("auth_bp.login"))
+            client = get_anon_client()
+            try:
+                # User ko Flask ke reset-password route par bhejein
+                redirect_target = f"{Config.APP_BASE_URL.rstrip('/')}/auth/reset-password"
+                client.auth.reset_password_for_email(
+                    email, 
+                    options={"redirect_to": redirect_target}
+                )
+                flash("Password reset link aapke email par bhej diya gaya hai. Apna inbox check karein!", "info")
+                return redirect(url_for("auth_bp.login"))
+            except Exception as exc:
+                flash(f"Error: {exc}", "danger")
 
     return render_template("auth/forgot_password.html")
+
+@auth_bp.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    """Renders the form to set a new password and updates it in Supabase."""
+    if request.method == "POST":
+        new_password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        access_token = request.form.get("access_token", "")
+
+        if len(new_password) < 8:
+            flash("Password kam se kam 8 characters ka hona chahiye.", "warning")
+            return render_template("auth/reset_password.html")
+
+        if new_password != confirm_password:
+            flash("Dono password match nahi ho rahe.", "warning")
+            return render_template("auth/reset_password.html")
+
+        try:
+            # Supabase user client se password update karein
+            user_client = get_user_client(access_token)
+            user_client.auth.update_user({"password": new_password})
+
+            flash("Aapka password safalta-purvak badal gaya hai! Ab naye password se login karein.", "success")
+            return redirect(url_for("auth_bp.login"))
+        except Exception as exc:
+            flash(f"Password update fail ho gaya: {exc}", "danger")
+
+    return render_template("auth/reset_password.html")
 
 
 @auth_bp.route("/logout")
