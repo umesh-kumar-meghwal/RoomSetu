@@ -3,6 +3,7 @@ routes/auth.py
 Handles user signup, email verification, session creation, and signout.
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from config import Config
 from services.auth_service import AuthService
 from utils.validators import validate_registration_payload, sanitize_string
 from services.supabase_client import get_anon_client, get_service_client
