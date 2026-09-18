@@ -132,13 +132,19 @@ def forgot_password():
 
     return render_template("auth/forgot_password.html")
 
+import requests
+
 @auth_bp.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
-    """Renders the form to set a new password and updates it in Supabase."""
+    """Updates user password using the recovery access token via Supabase Auth API."""
     if request.method == "POST":
-        new_password = request.form.get("password", "")
-        confirm_password = request.form.get("confirm_password", "")
-        access_token = request.form.get("access_token", "")
+        new_password = request.form.get("password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
+        access_token = request.form.get("access_token", "").strip()
+
+        if not access_token:
+            flash("Reset session expire ho gaya ya token gayab hai. Please email se link dubara open karein.", "danger")
+            return render_template("auth/reset_password.html")
 
         if len(new_password) < 8:
             flash("Password kam se kam 8 characters ka hona chahiye.", "warning")
@@ -149,14 +155,29 @@ def reset_password():
             return render_template("auth/reset_password.html")
 
         try:
-            # Supabase user client se password update karein
-            user_client = get_user_client(access_token)
-            user_client.auth.update_user({"password": new_password})
+            # Supabase Auth /user endpoint ko direct call karein
+            auth_url = f"{Config.SUPABASE_URL.rstrip('/')}/auth/v1/user"
+            headers = {
+                "apikey": Config.SUPABASE_KEY,
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "password": new_password
+            }
 
-            flash("Aapka password safalta-purvak badal gaya hai! Ab naye password se login karein.", "success")
-            return redirect(url_for("auth_bp.login"))
+            resp = requests.put(auth_url, json=payload, headers=headers, timeout=10)
+
+            if resp.status_code == 200:
+                flash("Aapka password safalta-purvak badal gaya hai! Ab naye password se login karein.", "success")
+                return redirect(url_for("auth_bp.login"))
+            else:
+                error_data = resp.json()
+                msg = error_data.get("msg") or error_data.get("message") or resp.text
+                flash(f"Password update fail: {msg}", "danger")
+
         except Exception as exc:
-            flash(f"Password update fail ho gaya: {exc}", "danger")
+            flash(f"Server error: {exc}", "danger")
 
     return render_template("auth/reset_password.html")
 
